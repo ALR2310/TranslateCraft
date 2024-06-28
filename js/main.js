@@ -16,11 +16,11 @@ $('#openFiles').on('change', function (e) {
 // Đếm và kiểm tra lỗi trên text
 $('#transText').on('input', function () {
     try {
-        if($(this).val() === "") return;
+        if ($(this).val() === "") return;
         $('#transTextError').text("");
         const textObj = JSON.parse($(this).val());
         $('#transTextCount').text(Object.entries(textObj).length);
-    } catch(e) {
+    } catch (e) {
         $('#transTextError').text("Nội dung không phải là một JSON hợp lệ")
     }
 });
@@ -28,11 +28,11 @@ $('#transText').on('input', function () {
 // Đếm và kiểm tra lỗi trên result
 $('#transResult').on('input, focus, blur', function () {
     try {
-        if($(this).val() === "") return;
+        if ($(this).val() === "") return;
         $('#transResultError').text("");
         const textObj = JSON.parse($(this).val());
         $('#transResultCount').text(Object.entries(textObj).length);
-    } catch(e) {
+    } catch (e) {
         $('#transResultError').text("Nội dung không phải là một JSON hợp lệ")
     }
 });
@@ -139,39 +139,11 @@ async function translateJSON(jsonObj) {
     return { translatedObj, values, paths, translatedValues };
 }
 
-// Hàm để tạo hàng trong bảng
-function createTableRow(key, value, translatedValue) {
-    const row = $('<tr></tr>');
-
-    const keyCell = $('<td></td>').addClass('key-column').text(key);
-    row.append(keyCell);
-
-    const valueCell = $('<td></td>').text(value);
-    row.append(valueCell);
-
-    const transCell = $('<td style="width: 275px;"></td>');
-    const input = $('<textarea class="form-control form-control-sm" style="height: auto;"></textarea>').text(translatedValue);
-    input.on('input', function () {
-        updateTransResult(key, $(this).val());
-    });
-    transCell.append(input);
-    row.append(transCell);
-
-    const buttonCell = $('<td></td>');
-    const buttonDiv = $('<div class="d-flex justify-content-center"></div>');
-    const button = $('<button class="btn btn-sm btn-secondary"></button>').html('<i class="fa-solid fa-rotate-left"></i>');
-    button.on('click', function () {
-        input.val(value).trigger('input');
-    });
-    buttonDiv.append(button);
-    buttonCell.append(buttonDiv);
-    row.append(buttonCell);
-
-    return row;
-}
-
 // Hàm để cập nhật giá trị trong thẻ transResult
-function updateTransResult(key, newValue) {
+function updateTransResult(element) {
+    const key = $(element).closest('tr').find('.key-column').text();
+    const newValue = $(element).val();
+
     try {
         const transResult = JSON.parse($('#transResult').val());
         _.set(transResult, key, newValue);
@@ -180,6 +152,11 @@ function updateTransResult(key, newValue) {
         console.log(err);
         showErrorToast("Có lỗi xảy ra khi cập nhật transResult");
     }
+}
+
+function resetTranstValue(element) {
+    const value = $(element).closest('tr').find('.value-column').text();
+    $(element).closest('tr').find('textarea').val(value).trigger('input');
 }
 
 // sự kiện nút dịch văn bản
@@ -201,13 +178,21 @@ $('#btn-translate').click(async function () {
         const tbody = $('#tbCompare tbody');
         tbody.empty(); // Xóa nội dung bảng cũ
 
+        const tableData = [];
+
         paths.forEach((path, index) => {
-            const key = path.join('.');
-            const value = values[index];
-            const translatedValue = translatedValues[index];
-            const row = createTableRow(key, value, translatedValue);
-            tbody.append(row);
+            const rowData = {
+                key: path.join('.'),
+                value: values[index],
+                translated: translatedValues[index]
+            };
+            tableData.push(rowData);
         });
+
+        const source = $('#tbCompare-Template').html();
+        const template = Handlebars.compile(source);
+        const data = template({ tableData });
+        $('#tbCompareBody').html(data);
 
         $('#transResult').val(JSON.stringify(translatedObj, null, 2));
     } catch (err) {
