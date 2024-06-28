@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'Roboto';
+    src: url('../fonts/roboto/Roboto-Regular.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.tableScroll {
+    margin-bottom: 10px;
+    padding: 0;
+    overflow: auto;
+}
+
+.tableScroll thead th {
+    position: sticky;
+    top: 0;
+    background-color: rgba(233,236,239, 1);
+    z-index: 1;
+}
+
+/* Đặt thanh trượt mặt định */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 25px;
+    transition: all 0.5s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.key-column {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.key-column:hover {
+    overflow: auto;
+    white-space: normal;
+    text-overflow: unset;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../libs/bootstrap-5.3.3/bootstrap.min.css">
+    <link rel="stylesheet" href="../libs/fontawesome-6.4.2/css/all.css">
+    <link rel="stylesheet" href="../libs/toast/toast.css">
+
+    <title>Document</title>
+</head>
+
+<body>
+    <link rel="stylesheet" href="../css/main.css">
+    <div id="toast"></div>
+    <main>
+        <h1 class="text-center">Minecraft Mod Translation</h1>
+
+        <div class="container">
+            <div class="mb-3 d-flex align-items-center justify-content-between">
+                <input class="form-control form-control-sm w-25" type="file" id="openFiles">
+
+                <button id="btn-translate" class="btn btn-sm btn-primary">Bắt đầu dịch</button>
+            </div>
+
+
+            <div class="row">
+                <div class="col-5">
+                    <div class="mb-3">
+                        <label for="transText">Hoặc dán văn bản vào đây:</label>
+                        <textarea id="transText" class="form-control form-control-sm"
+                            style="height: 200px;resize: none;"></textarea>
+                        <div class="d-flex justify-content-between">
+                            <span id="transTextError" class="text-danger"></span>
+                            <span id="transTextCount">0</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="transResult">Kết quả:</label>
+                        <textarea id="transResult" class="form-control form-control-sm"
+                            style="height: 200px;resize: none;"></textarea>
+                        <div class="d-flex justify-content-between">
+                            <span id="transResultError" class="text-danger"></span>
+                            <span id="transResultCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-7">
+                    <p class="mb-0">Bảng dữ liệu:</p>
+                    <div class="tableScroll border rounded-1" style="height: 465px;">
+                        <table id="tbCompare" class="table table-sm table-hover border-start border-end"
+                            style="table-layout: auto;">
+                            <thead class="sticky-top">
+                                <tr>
+                                    <th scope="col">Khoá</th>
+                                    <th scope="col">Gốc</th>
+                                    <th scope="col">Dịch</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="key-column">Key</td>
+                                    <td>Values</td>
+                                    <td style="width: 275px;">
+                                        <textarea rows="1" class="form-control form-control-sm"></textarea>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center">
+                                            <button class="btn btn-sm btn-secondary">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <script id="tbCompare-Template" type="text/x-handlebars-template">
+                                    <tr>
+                                        <td class="key-column">{{Key}}</td>
+                                        <td>{{Values}}</td>
+                                        <td style="width: 275px;">
+                                            <textarea rows="1" class="form-control form-control-sm">{{Translated}}</textarea>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-center">
+                                                <button class="btn btn-sm btn-secondary">
+                                                    <i class="fa-solid fa-rotate-left"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </script>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+    </main>
+
+    <script src="../libs/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
+    <script src="../libs/handlebars/handlebars4.7.8.min.js"></script>
+    <script src="../libs/jquery-3.7.1/all.js"></script>
+    <script src="../libs/lodash-1.8.3/lodash.min.js"></script>
+    <script src="../libs/toast/toast.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+
+</html>
