@@ -105,12 +105,12 @@ function splitTexts(texts, maxLength) {
 
 // Thay thế ký tự ngắt dòng bằng ký tự đặc biệt trước khi dịch
 function prepareForTranslation(text) {
-    return text.replace(/\n/g, '[0]');
+    return text.replace(/\n/g, '¥');
 }
 
 // Khôi phục ký tự ngắt dòng sau khi dịch
 function revertTranslation(text) {
-    return text.replace(/\[0\]/g, '\n');
+    return text.replace(/¥/g, '\n');
 }
 
 // Bắt đầu thanh tiến trình
@@ -200,6 +200,15 @@ function resetTranstValue(element) {
     $(element).closest('tr').find('textarea').val(value).trigger('input');
 }
 
+// Hàm tạo autoResize cho các textarea trên table
+function autoResizeTextarea(element) {
+    $(element).css("height", `${element.scrollHeight}px`);
+    $(element).on('input', function () {
+        $(element).css("height", 0);
+        $(element).css("height", `${element.scrollHeight}px`);
+    })
+}
+
 // sự kiện nút dịch văn bản
 $('#btn-translate').click(async function () {
     try {
@@ -227,6 +236,11 @@ $('#btn-translate').click(async function () {
         $('#tbCompareBody').html(data);
 
         $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
+
+        // Tự động điều chỉnh chiều cao của tất cả các textarea
+        $('#tbCompareBody').find('textarea').each(function () {
+            autoResizeTextarea(this);
+        });
     } catch (err) {
         console.log(err);
         showErrorToast("Giá trị đầu vào không hợp lệ");

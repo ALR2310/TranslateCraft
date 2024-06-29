@@ -15,9 +15,15 @@
 
     <main>
         <div class="container">
-            <input class="mb-3 mt-3 form-control form-control-sm w-25" type="file" id="openFiles">
+            <div class="d-flex justify-content-between">
+                <input class="mb-3 mt-3 form-control form-control-sm w-25" type="file" id="openFiles">
+
+                
+            </div>
+
 
             <div class="row">
+                <!-- Các box văn bản và kết quả -->
                 <div class="col-5">
                     <div class="mb-3">
                         <label for="transText">Hoặc dán văn bản vào đây:</label>
@@ -39,7 +45,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Bảng so sánh và chỉnh sửa -->
                 <div class="col-7">
                     <p class="mb-0">Bảng dữ liệu:</p>
                     <div class="tableScroll border rounded-1" style="height: 465px;">
@@ -62,7 +68,7 @@
                                     <td class="key-column">{{key}}</td>
                                     <td class="value-column">{{value}}</td>
                                     <td style="width: 275px;">
-                                        <textarea class="form-control" oninput="updateTransResult(this)">{{translated}}</textarea>
+                                        <textarea class="form-control overflow-y-hidden" style="height: 17px;" oninput="updateTransResult(this)">{{translated}}</textarea>
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center">
@@ -79,7 +85,7 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Các nút và tuỳ chọn dịch -->
             <div class="d-flex align-items-center justify-content-between">
                 <button id="btn-copy" class="btn btn-success btn-sm">Sao Chép</button>
 
@@ -111,7 +117,7 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Thanh tiến trình -->
             <div id="progressTranslate" class="progress mt-2 d-none">
                 <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"
                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
