@@ -113,8 +113,41 @@ function revertTranslation(text) {
     return text.replace(/\[0\]/g, '\n');
 }
 
+// Bắt đầu thanh tiến trình
+function startProgressBar() {
+    $('#progressTranslate').removeClass('d-none');
+    currentProgress = 0;
+    updateProgressBar(currentProgress);
+
+    progressInterval = setInterval(() => {
+        if (currentProgress < 90) {
+            const increment = Math.random() * 5; // Tăng ngẫu nhiên từ 0 đến 5
+            currentProgress = Math.min(currentProgress + increment, 90);
+            updateProgressBar(currentProgress);
+        }
+    }, 500); // Cập nhật mỗi 0.5 giây
+}
+
+// Kết thúc thanh tiến trình
+function stopProgressBar() {
+    clearInterval(progressInterval);
+    currentProgress = 100;
+    updateProgressBar(currentProgress);
+    setTimeout(() => $('#progressTranslate').addClass('d-none'), 700);
+}
+
+// Cập nhật thanh tiến trình
+function updateProgressBar(progress) {
+    $('#progressTranslate').find('.progress-bar')
+        .css('width', `${Math.round(progress)}%`)
+        .attr('aria-valuenow', Math.round(progress))
+        .text(`${Math.round(progress)}%`);
+}
+
 // Hàm dịch văn bản
 async function translateText(texts) {
+    startProgressBar();
+
     const maxLength = 4500;
     const textGroups = splitTexts(texts.map(prepareForTranslation), maxLength);
     const translatedValues = [];
@@ -133,6 +166,7 @@ async function translateText(texts) {
         translatedValues.push(...data.translateText.split('\n').map(revertTranslation));
     }
 
+    stopProgressBar();
     return translatedValues;
 }
 
@@ -160,6 +194,7 @@ function updateTransResult(element) {
     }
 }
 
+// Hàm để reset giá trị trên bảng về mặt định
 function resetTranstValue(element) {
     const value = $(element).closest('tr').find('.value-column').text();
     $(element).closest('tr').find('textarea').val(value).trigger('input');
@@ -172,7 +207,6 @@ $('#btn-translate').click(async function () {
 
         const { translatedObj, values, paths, translatedValues } = await translateJSON(text);
 
-        // Cập nhật bảng
         const tbody = $('#tbCompare tbody');
         tbody.empty(); // Xóa nội dung bảng cũ
 
@@ -195,6 +229,7 @@ $('#btn-translate').click(async function () {
         $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
     } catch (err) {
         console.log(err);
-        showErrorToast("Giá trị đầu vào không hợp lệ")
+        showErrorToast("Giá trị đầu vào không hợp lệ");
+        stopProgressBar();
     }
 });
