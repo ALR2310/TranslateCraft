@@ -1,4 +1,9 @@
-const TransAPI = 'https://script.google.com/macros/s/AKfycbzcw3_ujuH04arRj1KLI2j0yXQE8jUb5POHBFPi0NAfZEBAaKe9AcwvxyahI3stGwrh2A/exec'
+const TransAPI = [
+    'https://script.google.com/macros/s/AKfycbzcw3_ujuH04arRj1KLI2j0yXQE8jUb5POHBFPi0NAfZEBAaKe9AcwvxyahI3stGwrh2A/exec',
+    'https://script.google.com/macros/s/AKfycbxEmmZFo2qYKuasmbnptS7K4umOy2PsCMe3F2uF13OqUZBdeY5ziTc00GyvoN2PtaV7kA/exec',
+    'https://script.google.com/macros/s/AKfycbxZhcRkfbT_86cWh5_B4jF9aXCjTIbjCpsbZga_TafiAF4zLUupy0w_MO2ta8h2pvr-/exec'
+]
+
 
 // Đọc dữ liệu trong tệp
 $('#openFiles').on('change', function (e) {
@@ -8,6 +13,7 @@ $('#openFiles').on('change', function (e) {
         reader.onload = function (res) {
             const content = res.target.result;
             $('#transText').val(content);
+            $('#transTextCount').text(Object.entries(JSON.parse(content)).length);
         }
         reader.readAsText(file);
     }
@@ -117,7 +123,7 @@ async function translateText(texts) {
         const params = { text: group.join('\n'), source: 'en', target: 'vi' }
         const queryString = new URLSearchParams(params).toString();
 
-        const response = await fetch(`${TransAPI}?${queryString}`, {
+        const response = await fetch(`${TransAPI[$('#serverAPI').val()]}?${queryString}`, {
             redirect: "follow",
             method: "GET",
             headers: { "Content-Type": "text/plain;charset=utf-8" }
@@ -162,15 +168,7 @@ function resetTranstValue(element) {
 // sự kiện nút dịch văn bản
 $('#btn-translate').click(async function () {
     try {
-        const text = {
-            "item.constructionwand.stone_wand": "Stone Wand",
-            "item.constructionwand.iron_wand": "Iron Wand",
-            "item.constructionwand.diamond_wand": "Diamond Wand",
-            "item.constructionwand.infinity_wand": "Infinity Wand",
-            "item.constructionwand.core_angel": "Angel Wand Core",
-            "item.constructionwand.core_destruction": "Destruction Wand Core",
-        }
-        // const text = JSON.parse($('#transText').val());
+        const text = JSON.parse($('#transText').val());
 
         const { translatedObj, values, paths, translatedValues } = await translateJSON(text);
 
@@ -194,7 +192,7 @@ $('#btn-translate').click(async function () {
         const data = template({ tableData });
         $('#tbCompareBody').html(data);
 
-        $('#transResult').val(JSON.stringify(translatedObj, null, 2));
+        $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
     } catch (err) {
         console.log(err);
         showErrorToast("Giá trị đầu vào không hợp lệ")

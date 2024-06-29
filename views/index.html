@@ -6,23 +6,16 @@
     <link rel="stylesheet" href="../libs/bootstrap-5.3.3/bootstrap.min.css">
     <link rel="stylesheet" href="../libs/fontawesome-6.4.2/css/all.css">
     <link rel="stylesheet" href="../libs/toast/toast.css">
-
+    <link rel="stylesheet" href="../css/main.css">
     <title>Document</title>
 </head>
 
 <body>
-    <link rel="stylesheet" href="../css/main.css">
     <div id="toast"></div>
+
     <main>
-        <h1 class="text-center">Minecraft Mod Translation</h1>
-
         <div class="container">
-            <div class="mb-3 d-flex align-items-center justify-content-between">
-                <input class="form-control form-control-sm w-25" type="file" id="openFiles">
-
-                <button id="btn-translate" class="btn btn-sm btn-primary">Bắt đầu dịch</button>
-            </div>
-
+            <input class="mb-3 mt-3 form-control form-control-sm w-25" type="file" id="openFiles">
 
             <div class="row">
                 <div class="col-5">
@@ -61,20 +54,6 @@
                                 </tr>
                             </thead>
                             <tbody id="tbCompareBody">
-                                <tr>
-                                    <td class="key-column">Key</td>
-                                    <td>Values</td>
-                                    <td style="width: 275px;">
-                                        <textarea rows="1" class="form-control form-control-sm" oninput="updateTransResult(this)"></textarea>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex justify-content-center">
-                                            <button class="btn btn-sm btn-secondary">
-                                                <i class="fa-solid fa-rotate-left"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
                             </tbody>
                             <script id="tbCompare-Template" type="text/x-handlebars-template">
                                 {{#if tableData}}
@@ -83,7 +62,7 @@
                                     <td class="key-column">{{key}}</td>
                                     <td class="value-column">{{value}}</td>
                                     <td style="width: 275px;">
-                                        <textarea class="form-control form-control-sm" oninput="updateTransResult(this)">{{translated}}</textarea>
+                                        <textarea class="form-control" oninput="updateTransResult(this)">{{translated}}</textarea>
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center">
@@ -99,6 +78,40 @@
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between">
+                <button id="btn-copy" class="btn btn-success btn-sm">Sao Chép</button>
+
+                <div class="row">
+                    <!-- Server api -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center text-nowrap">
+                            <label class="me-2" for="serverAPI">Server API:</label>
+                            <select class="form-select form-select-sm" id="serverAPI">
+                                <option value="0" selected>API 1</option>
+                                <option value="1">API 2</option>
+                                <option value="2">API 3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Khoán cách đầu ra mỗi dòng -->
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center text-nowrap">
+                            <label class="me-2" for="spaceRow">Khoản cách:</label>
+                            <select class="form-select form-select-sm" id="spaceRow">
+                                <option value="2" selected>2</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Nút dịch -->
+                    <div class="col-auto">
+                        <button id="btn-translate" class="btn btn-sm btn-primary text-nowrap">Bắt đầu dịch</button>
+                    </div>
+                </div>
+
+
             </div>
 
 
