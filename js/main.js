@@ -4,7 +4,6 @@ const TransAPI = [
     'https://script.google.com/macros/s/AKfycbxZhcRkfbT_86cWh5_B4jF9aXCjTIbjCpsbZga_TafiAF4zLUupy0w_MO2ta8h2pvr-/exec'
 ]
 
-
 // Đọc dữ liệu trong tệp
 $('#openFiles').on('change', function (e) {
     const file = e.target.files[0];
@@ -148,7 +147,7 @@ function updateProgressBar(progress) {
 async function translateText(texts) {
     startProgressBar();
 
-    const maxLength = 4500;
+    const maxLength = Number($('#limitText').val());
     const textGroups = splitTexts(texts.map(prepareForTranslation), maxLength);
     const translatedValues = [];
 
@@ -246,4 +245,17 @@ $('#btn-translate').click(async function () {
         showErrorToast("Giá trị đầu vào không hợp lệ");
         stopProgressBar();
     }
+});
+
+// Sao chép kết quả sau khi dịch
+$('#btn-copy').click(function() {
+    var textarea = $('#transResult');
+
+    navigator.clipboard.writeText(textarea.val()).then(function() {
+        // Thông báo cho người dùng (tùy chọn)
+        showSuccessToast('Đã sao chép nội dung!');
+    }).catch(function(err) {
+        console.error('Không thể sao chép nội dung: ', err);
+        showErrorToast('Có lỗi khi sao chép nội dung!');
+    });
 });
