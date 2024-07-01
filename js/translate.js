@@ -5,7 +5,7 @@ const API = [
 ]
 
 // Đọc dữ liệu trong tệp
-$('#openFiles').on('change', function (e) {
+$('#translate-openFiles').on('change', function (e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
@@ -214,10 +214,10 @@ $('#btn-translate').click(async function () {
         }));
 
         // Gánh dữ liệu cho bảng
-        $('#tbCompareBody').html(createTable('#tbCompare-Template', dataTable));
+        $('#tb_translateBody').html(createTable('#tb_translate-Template', dataTable));
 
         // Tự động điều chỉnh chiều cao của tất cả các textarea
-        $('#tbCompareBody').find('textarea').each(function () {
+        $('#tb_translateBody').find('textarea').each(function () {
             autoResizeTextarea(this);
         });
 

@@ -19,11 +19,10 @@
             <div>
                 <ul class="nav nav-tabs justify-content-center mt-2 w-100">
                     <li id="page-translate" class="nav-item">
-                        <a class="nav-link text-center active" aria-current="page" href="#"
-                            style="width: 100px;">Dịch</a>
+                        <a class="nav-link text-center pointer" style="width: 100px;">Dịch</a>
                     </li>
                     <li id="page-update" class="nav-item">
-                        <a class="nav-link text-center" href="#" style="width: 100px;">Cập nhật</a>
+                        <a class="nav-link text-center pointer" style="width: 100px;">Cập nhật</a>
                     </li>
                 </ul>
 
@@ -48,7 +47,7 @@
                         </symbol>
                     </svg>
                     <label class="switch pointer">
-                        <input id="toggleTheme" class="switch__input" type="checkbox" role="switch" name="dark" />
+                        <input id="toggleTheme" class="switch__input" aria-checked="true" type="checkbox" role="switch" name="dark" />
                         <svg class="switch__icon" width="30px" height="30px" aria-hidden="true">
                             <use href="#light" />
                         </svg>
@@ -69,7 +68,8 @@
                 </div>
             </div>
 
-            <div id="page-content"></div>
+            <div id="page-translate_content"></div>
+            <div id="page-update_content"></div>
         </div>
     </main>
 
@@ -80,28 +80,8 @@
     <script src="./libs/toast/toast.js"></script>
     <script src="./js/main.js"></script>
     <script src="./js/theme.js"></script>
-    <script>
-        const testObjOrigin = {
-            "item.constructionwand.stone_wand": "Stone Wand",
-            "item.constructionwand.iron_wand": "Iron Wand",
-            "item.constructionwand.diamond_wand": "Diamond Wand",
-            "item.constructionwand.infinity_wand": "Infinity Wand",
-            "item.constructionwand.core_angel": "Angel Wand Core",
-            "item.constructionwand.core_destruction": "Destruction Wand Core"
-        }
-
-        const testObjTrans = {
-            "item.constructionwand.stone_wand": "Cây Đũa Đá",
-            "item.constructionwand.iron_wand": "Cây Đũa Sắt",
-            "item.constructionwand.diamond_wand": "Cây đũa kim cương",
-            "item.constructionwand.infinity_wand": "Cây Đũa Vô Cực",
-            "item.constructionwand.core_angel": "Cây đũa Lõi thần",
-            "item.constructionwand.core_destruction": "Cây đũa lõi phá huỷ"
-        }
-
-        $('#transText').attr('placeholder', JSON.stringify(testObjOrigin, null, 2));
-        // $('#transResult').attr('placeholder', JSON.stringify(testObjTrans, null, 2));
-    </script>
+    <!-- <script src="../js/translate.js"></script> -->
+    <!-- <script src="../js/update.js"></script> -->
 </body>
 
 </html>

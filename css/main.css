@@ -48,6 +48,10 @@ body {
     cursor: pointer !important
 }
 
+.no-copy {
+    user-select: none;
+}
+
 /* Đặt thanh trượt mặt định */
 ::-webkit-scrollbar {
     width: 7px;

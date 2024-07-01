@@ -1,4 +1,4 @@
-<input class="mb-3 mt-3 form-control form-control-sm w-25" type="file" id="openFiles">
+<input class="mb-3 mt-3 form-control form-control-sm w-25" type="file" id="translate-openFiles">
 
 <div class="row">
     <!-- Các box văn bản và kết quả -->
@@ -27,7 +27,7 @@
     <div class="col-7">
         <p class="mb-0">Bảng dữ liệu:</p>
         <div class="tableScroll border rounded-1" style="height: 460px;">
-            <table id="tbCompare" class="table table-sm table-hover border-start border-end"
+            <table id="tb_translate" class="table table-sm table-hover border-start border-end"
                 style="table-layout: auto;">
                 <thead class="">
                     <tr class="table-active">
@@ -37,9 +37,9 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="tbCompareBody">
+                <tbody id="tb_translateBody">
                 </tbody>
-                <script type="text/x-handlebars-template" id="tbCompare-Template">
+                <script type="text/x-handlebars-template" id="tb_translate-Template">
                     %#if dataTable%
                         %#each dataTable%
                             <tr>
@@ -119,4 +119,3 @@
     </div>
 </div>
 
-<script src="../js/translate.js"></script>

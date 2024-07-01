@@ -14,27 +14,62 @@ function convertPlaceHbs(template, options = { from: { start: "%", end: "%" }, t
     }
 }
 
+
+let pages = {
+    translate: {
+        isLoad: false,
+        isShow: false,
+        url: 'views/translate.hbs',
+        script: 'js/translate.js',
+        content: '#page-translate_content'
+    },
+    update: {
+        isLoad: false,
+        isShow: false,
+        url: 'views/update.hbs',
+        script: 'js/update.js',
+        content: '#page-update_content'
+    }
+};
+
+function showPage(pageKey) {
+    let page = pages[pageKey];
+    let otherPageKey = pageKey === 'translate' ? 'update' : 'translate';
+    let otherPage = pages[otherPageKey];
+
+    $(`#page-${pageKey}`).find('.nav-link').addClass("active");
+    $(`#page-${otherPageKey}`).find('.nav-link').removeClass("active");
+
+    if (page.isLoad) {
+        if (page.isShow) return;
+        $(page.content).removeClass('d-none');
+        $(otherPage.content).addClass('d-none');
+    } else {
+        if (otherPage.isShow) $(otherPage.content).addClass('d-none');
+        fetch(page.url)
+            .then(response => response.text())
+            .then(template => {
+                const compiledTemplate = Handlebars.compile(template);
+                $(page.content).html(compiledTemplate());
+                $.getScript(page.script);
+            });
+        page.isLoad = true;
+    }
+    page.isShow = true;
+    otherPage.isShow = false;
+
+    localStorage.setItem("page", pageKey);
+}
+
 $('#page-translate').click(function () {
-    localStorage.setItem("page", "translate");
-    fetch('views/translate.hbs')
-        .then(response => response.text())
-        .then(template => {
-            const compiledTemplate = Handlebars.compile(template);
-            $('#page-content').html(compiledTemplate());
-        });
+    showPage('translate');
 });
 
 $('#page-update').click(function () {
-    localStorage.setItem("page", "update");
-    fetch('views/update.hbs')
-        .then(response => response.text())
-        .then(template => {
-            const compiledTemplate = Handlebars.compile(template);
-            $('#page-content').html(compiledTemplate());
-        });
+    showPage('update');
 });
 
 const currentPage = localStorage.getItem("page");
-if (currentPage == "update") $('#page-update').click();
-else if (currentPage == "translate") $('#page-translate').click();
+if (currentPage === "update") $('#page-update').click();
+else $('#page-translate').click();
 
