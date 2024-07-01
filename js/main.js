@@ -14,20 +14,20 @@ function convertPlaceHbs(template, options = { from: { start: "%", end: "%" }, t
     }
 }
 
-
+const urlPage = window.location.origin + window.location.pathname;
 let pages = {
     translate: {
         isLoad: false,
         isShow: false,
-        url: '/views/translate.hbs',
-        script: '/js/translate.js',
+        url: urlPage + 'views/translate.hbs',
+        script: urlPage + 'js/translate.js',
         content: '#page-translate_content'
     },
     update: {
         isLoad: false,
         isShow: false,
-        url: '/views/update.hbs',
-        script: '/js/update.js',
+        url: urlPage + 'views/update.hbs',
+        script: 'js/update.js',
         content: '#page-update_content'
     }
 };
