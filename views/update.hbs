@@ -9,23 +9,28 @@
 
 <div id="textarea-container" class="row mt-3">
     <div class="col">
+        <label for="textUpdate">Văn bản mới:</label>
         <textarea id="textUpdate" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
     <div class="col">
+        <label for="textOld">Văn bản cũ:</label>
         <textarea id="textOld" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
     <div class="col">
+        <label for="textTranslated">Văn bản đã dịch:</label>
         <textarea id="textTranslated" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
 </div>
 
 <div class="row mt-3">
     <div class="col-5">
-        <textarea id="updateResult" class="form-control form-control-sm"></textarea>
+        <label for="updateResult">Kết quả:</label>
+        <textarea id="updateResult" class="form-control form-control-sm" style="height: 460px; resize: none;"></textarea>
     </div>
 
     <div class="col-7">
-        <table>
+        <span>Bảng dữ liệu:</span>
+        <div class="tableScroll border rounded-1" style="height: 460px;">
             <table id="tb_update" class="table table-sm table-hover border-start border-end"
                 style="table-layout: auto;">
                 <thead class="">
@@ -60,9 +65,61 @@
                     %/if%
                 </script>
             </table>
-        </table>
+        </div>
     </div>
 </div>
 
+<!-- Các nút và tuỳ chọn dịch -->
+<div class="d-flex align-items-center justify-content-between">
+    <button id="btn-update_copy" class="btn btn-success btn-sm" style="visibility: hidden;">Sao Chép</button>
 
+    <div class="row">
+        <!-- Server api -->
+        <div class="col-auto">
+            <div class="d-flex align-items-center text-nowrap">
+                <label class="me-2" for="api">Server API:</label>
+                <select class="form-select form-select-sm" id="api_update">
+                    <option value="0" selected>API 1</option>
+                    <option value="1">API 2</option>
+                    <option value="2">API 3</option>
+                </select>
+            </div>
+        </div>
+        <!-- Giới hạn văn bản -->
+        <div class="col-auto">
+            <div class="d-flex align-items-center text-nowrap">
+                <label class="me-2" for="textLimit">Giới hạn văn bản:</label>
+                <select class="form-select form-select-sm" id="textLimit_update">
+                    <option value="5000">5000</option>
+                    <option value="4500" selected>4500</option>
+                    <option value="4000">4000</option>
+                    <option value="3000">3000</option>
+                    <option value="2000">2000</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+        </div>
+        <!-- Khoán cách đầu ra mỗi dòng -->
+        <div class="col-auto">
+            <div class="d-flex align-items-center text-nowrap">
+                <label class="me-2" for="spaceRow">Khoản cách:</label>
+                <select class="form-select form-select-sm" id="spaceRow_update">
+                    <option value="2" selected>2</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+        </div>
+        <!-- Nút dịch -->
+        <div class="col-auto">
+            <button id="btn-update" class="btn btn-sm btn-primary text-nowrap">Bắt đầu dịch</button>
+        </div>
+    </div>
+</div>
+
+<!-- Thanh tiến trình -->
+<div id="progressUpdate" class="progress mt-2 d-none">
+    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0"
+        aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+    </div>
+</div>
 
