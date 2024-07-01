@@ -19,15 +19,15 @@ let pages = {
     translate: {
         isLoad: false,
         isShow: false,
-        url: 'views/translate.hbs',
-        script: 'js/translate.js',
+        url: '/views/translate.hbs',
+        script: '/js/translate.js',
         content: '#page-translate_content'
     },
     update: {
         isLoad: false,
         isShow: false,
-        url: 'views/update.hbs',
-        script: 'js/update.js',
+        url: '/views/update.hbs',
+        script: '/js/update.js',
         content: '#page-update_content'
     }
 };
