@@ -100,11 +100,16 @@ async function translation(text, source_lang, target_lang, api_url) {
     const params = { text: text, source: source_lang, target: target_lang }
     const queryString = new URLSearchParams(params).toString();
 
-    const response = await fetch(`${api_url}?${queryString}`, {
-        redirect: "follow", method: "GET", headers: { "Content-Type": "text/plain;charset=utf-8" }
-    });
+    try {
+        const response = await fetch(`${api_url}?${queryString}`, {
+            redirect: "follow", method: "GET", headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
 
-    return JSON.parse(await response.json());
+        return JSON.parse(await response.json());
+    } catch (err) {
+        console.log(err);
+        return null;
+    }
 }
 
 /* -------------- Các hàm liên quan đến tạo bảng và các sự kiện -------------- */
@@ -183,40 +188,46 @@ function stopProgressBar(element, timeout) {
 
 // Nút dịch Json
 $('#btn-translate').click(async function () {
-    startProgressBar('#progressTranslate', 500); // Bắt đầu thanh tiến trình, cập nhật mỗi 0.5s
-    const textJson = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
-    const { paths, values } = exportObj(textJson); // Tách obj thành các mảng
-    // Tách văn bản giới hạn mỗi lần dịch và thay thế các ký tự
-    const textGroups = splitTexts(values.map(convertSymbol), Number($('#textLimit').val()));
-    const translatedValues = [];
+    try {
+        startProgressBar('#progressTranslate', 500); // Bắt đầu thanh tiến trình, cập nhật mỗi 0.5s
+        const textJson = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
+        const { paths, values } = exportObj(textJson); // Tách obj thành các mảng
+        // Tách văn bản giới hạn mỗi lần dịch và thay thế các ký tự
+        const textGroups = splitTexts(values.map(convertSymbol), Number($('#textLimit').val()));
+        const translatedValues = [];
 
-    // Lặp và dịch từng mảng văn bản
-    for (const group of textGroups) {
-        const groupText = group.join('\n'); // Gộp mảng thành văn bản
-        const text = await translation(groupText, 'en', 'vi', API[$('#api').val()]);
-        translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+        // Lặp và dịch từng mảng văn bản
+        for (const group of textGroups) {
+            const groupText = group.join('\n'); // Gộp mảng thành văn bản
+            const text = await translation(groupText, 'en', 'vi', API[$('#api').val()]);
+            translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+
+            const translatedObj = importObj(paths, translatedValues); // Tạo obj mới với values đã dịch
+            $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
+        }
+
+        // Tạo dữ liệu cho bảng
+        const dataTable = paths.map((path, index) => ({
+            key: path.join('.'),
+            value: values[index],
+            translated: translatedValues[index]
+        }));
+
+        // Gánh dữ liệu cho bảng
+        $('#tbCompareBody').html(createTable('#tbCompare-Template', dataTable));
+
+        // Tự động điều chỉnh chiều cao của tất cả các textarea
+        $('#tbCompareBody').find('textarea').each(function () {
+            autoResizeTextarea(this);
+        });
+
+        $('#btn-copy').css('visibility', 'unset'); // Hiển thị nút sao chép
+        stopProgressBar('#progressTranslate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
+    } catch (err) {
+        console.log(err);
+        stopProgressBar('#progressTranslate', 0);
+        showErrorToast("Có lỗi xảy ra trong quá trình dịch");
     }
-
-    const translatedObj = importObj(paths, translatedValues); // Tạo obj mới với values đã dịch
-    $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
-
-    // Tạo dữ liệu cho bảng
-    const dataTable = paths.map((path, index) => ({
-        key: path.join('.'),
-        value: values[index],
-        translated: translatedValues[index]
-    }));
-
-    // Gánh dữ liệu cho bảng
-    $('#tbCompareBody').html(createTable('#tbCompare-Template', dataTable));
-    
-    // Tự động điều chỉnh chiều cao của tất cả các textarea
-    $('#tbCompareBody').find('textarea').each(function () {
-        autoResizeTextarea(this);
-    });
-
-    $('#btn-copy').css('visibility', 'unset'); // Hiển thị nút sao chép
-    stopProgressBar('#progressTranslate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
 });
 
 // Nút sao chép kết quả
