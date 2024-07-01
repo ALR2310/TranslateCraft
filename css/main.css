@@ -44,6 +44,10 @@ body {
     z-index: 1;
 }
 
+.pointer {
+    cursor: pointer !important
+}
+
 /* Đặt thanh trượt mặt định */
 ::-webkit-scrollbar {
     width: 7px;

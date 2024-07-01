@@ -116,7 +116,7 @@ async function translation(text, source_lang, target_lang, api_url) {
 
 // Tạo bảng
 function createTable(element_content, dataTable = []) {
-    const template = Handlebars.compile($(element_content).html());
+    const template = Handlebars.compile(convertPlaceHbs($(element_content).html()));
     const data = template({ dataTable: dataTable });
     return data;
 }
