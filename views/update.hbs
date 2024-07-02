@@ -9,16 +9,16 @@
 
 <div id="textarea-container" class="row mt-3">
     <div class="col">
-        <label for="textUpdate">Văn bản mới:</label>
-        <textarea id="textUpdate" class="form-control form-control-sm" style="height: 150px;"></textarea>
+        <label for="textJsonNew">Văn bản mới:</label>
+        <textarea id="textJsonNew" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
     <div class="col">
-        <label for="textOld">Văn bản cũ:</label>
-        <textarea id="textOld" class="form-control form-control-sm" style="height: 150px;"></textarea>
+        <label for="textJsonOld">Văn bản cũ:</label>
+        <textarea id="textJsonOld" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
     <div class="col">
-        <label for="textTranslated">Văn bản đã dịch:</label>
-        <textarea id="textTranslated" class="form-control form-control-sm" style="height: 150px;"></textarea>
+        <label for="textJsonTranslated">Văn bản đã dịch:</label>
+        <textarea id="textJsonTranslated" class="form-control form-control-sm" style="height: 150px;"></textarea>
     </div>
 </div>
 
@@ -51,7 +51,7 @@
                                 <td class="value-column">%value%</td>
                                 <td style="width: 275px;">
                                     <textarea class="form-control overflow-y-hidden" style="height: 17px;"
-                                        oninput="updateTextTranslated(this)">%translated%</textarea>
+                                        oninput="updateTextTranslated(this, '#updateResult', '#spaceRow_update')">%translated%</textarea>
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">

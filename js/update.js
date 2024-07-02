@@ -20,8 +20,7 @@ $('#showText').on('change', function () {
 
 // -------------------------------------------------------------
 
-
-const jsonNew = {
+const jsonNew1 = {
     "people.one": "accountant",
     "people.two": "actor",
     "people.three": "artist manga",
@@ -30,144 +29,154 @@ const jsonNew = {
     "people.six": "entrepreneur",
 }
 
-const jsonOld = {
+const jsonOld1 = {
     "people.one": "accountant",
     "people.two": "actor",
     "people.three": "artist",
     "people.seven": "doctor",
 }
 
-const jsonTranslated = {
+const jsonTranslated1 = {
     "people.one": "kế toán viên",
     "people.two": "diễn viên",
     "people.three": "nghệ sĩ",
     "people.seven": "doctor",
 }
 
+$('#textJsonNew').val(JSON.stringify(jsonNew1, null, 2));
+$('#textJsonOld').val(JSON.stringify(jsonOld1, null, 2));
+$('#textJsonTranslated').val(JSON.stringify(jsonTranslated1, null, 2));
+
 
 // Tìm các giá trị mới chỉ có trong jsonNew
-function findNewValues(jsonNew, jsonOld) {
-    const newEntriesObj = _.reduce(jsonNew, (result, value, key) => {
-        if (_.isUndefined(jsonOld[key])) {
+function findNewValues(objNew, objOld) {
+    const newEntries = _.reduce(objNew, (result, value, key) => {
+        if (_.isUndefined(objOld[key])) {
             result[key] = value;
         }
         return result;
     }, {});
 
-    console.log('Các giá trị mới:', newEntriesObj);
-    return newEntriesObj;
+    return newEntries;
 }
 
 // Tìm các cặp giá trị đã thay đổi giữa jsonNew và jsonOld
-function findChangedValues(jsonNew, jsonOld) {
-    const changedEntriesObj = _.reduce(jsonNew, (result, value, key) => {
-        if (!_.isUndefined(jsonOld[key]) && !_.isEqual(value, jsonOld[key])) {
+function findChangedValues(objNew, objOld) {
+    const changedEntries = _.reduce(objNew, (result, value, key) => {
+        if (!_.isUndefined(objOld[key]) && !_.isEqual(value, objOld[key])) {
             result[key] = value;
         }
         return result;
     }, {});
 
-    console.log('Các cặp giá trị đã thay đổi:', changedEntriesObj);
-    return changedEntriesObj;
+    return changedEntries;
 }
 
 // Tìm các khóa đã cũ và không có trong jsonNew
-function findRemovedKeys(jsonNew, jsonOld) {
-    const oldKeys = _.keys(jsonOld);
-    const newKeys = _.keys(jsonNew);
-
+function findRemovedKeys(objNew, objOld) {
+    const oldKeys = _.keys(objOld), newKeys = _.keys(objNew);
     const removedKeys = _.difference(oldKeys, newKeys);
-
-    console.log('Các khóa đã cũ và không có trong jsonNew:', removedKeys);
     return removedKeys;
 }
 
-// Sắp xếp lại đối tượng
-function sortJsonByNewOrder(jsonNew, jsonOld) {
-    const sortedJsonOld = {};
+// Hàm xoá giá trị cũ
+function removeOldValues(keys, objOld, translatedObj) {
+    _.forEach(keys, key => {
+        delete objOld[key];
+        delete translatedObj[key];
+    });
+}
 
-    // Duyệt qua các khóa của jsonNew để lấy thứ tự
-    _.forEach(jsonNew, (value, key) => {
-        if (jsonOld.hasOwnProperty(key)) {
-            sortedJsonOld[key] = jsonOld[key];
+// Hàm cập nhật đối tượng
+function updateObject(targetObj, changedValues, newValues) {
+    _.forEach(changedValues, (value, key) => {
+        targetObj[key] = value;
+    });
+
+    _.forEach(newValues, (value, key) => {
+        targetObj[key] = value;
+    });
+}
+
+// Hàm tạo dữ liệu bảng
+function createDataTable(obj, objTranslated) {
+    return _.map(obj, (value, key) => ({
+        key: key,
+        value: value,
+        translated: objTranslated[key]
+    }));
+}
+
+// Hàm dịch và nhập đối tượng
+async function translateAndImport(values, textLimit, api) {
+    const valuesObj = exportObj(values);
+    const textGroups = splitTexts(valuesObj.values.map(convertSymbol), textLimit);
+    const translatedValues = [];
+
+    for (const group of textGroups) {
+        const groupText = group.join('\n');
+        const text = await translation(groupText, 'en', 'vi', api);
+        translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+    }
+
+    return importObj(valuesObj.paths, translatedValues);
+}
+
+// Sắp xếp lại đối tượng
+function sortJsonByNewOrder(obj, objToSort) {
+    const sortedObj = {};
+
+    _.forEach(obj, (value, key) => {
+        if (objToSort.hasOwnProperty(key)) {
+            sortedObj[key] = objToSort[key];
         }
     });
 
-    return sortedJsonOld;
+    return sortedObj;
 }
 
 
 $('#btn-update').click(async function () {
-    const newValues = findNewValues(jsonNew, jsonOld);
-    const changedValues = findChangedValues(jsonNew, jsonOld);
-    const removedKeys = findRemovedKeys(jsonNew, jsonOld);
+    try {
+        startProgressBar('#progressUpdate', 500); // Bắt đầu thanh tiến trình, cập nhật mỗi 0.5s
+        const jsonNew = JSON.parse($('#textJsonNew').val());
+        const jsonOld = JSON.parse($('#textJsonOld').val());
+        const jsonTranslated = JSON.parse($('#textJsonTranslated').val());
 
-    // Xoá các cặp giá trị cũ
-    _.forEach(removedKeys, key => {
-        delete jsonOld[key];
-        delete jsonTranslated[key];
-    });
+        const newValues = findNewValues(jsonNew, jsonOld);
+        const changedValues = findChangedValues(jsonNew, jsonOld);
+        const removedKeys = findRemovedKeys(jsonNew, jsonOld);
 
-    // Tách newValues thành các mảng để dịch
-    const newValuesObj = exportObj(newValues);
-    const textGroups = splitTexts(newValuesObj.values.map(convertSymbol), 1000); // Tách văn bản thành các nhóm
-    const translatedValues = [];
+        // Xoá các cặp giá trị cũ
+        removeOldValues(removedKeys, jsonOld, jsonTranslated);
 
-    // Lặp và dịch này mảng văn bản
-    for (const group of textGroups) {
-        const groupText = group.join('\n'); // Gộp mảng thành văn bản
-        const text = await translation(groupText, 'en', 'vi', API[0]);
-        translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+        // Dịch và thêm các giá trị mới
+        const translatedObj = await translateAndImport(newValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
+        const changedTranslatedObj = await translateAndImport(changedValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
+
+        // Thay thế và thêm dữ liệu
+        updateObject(jsonOld, changedValues, newValues);
+        updateObject(jsonTranslated, changedTranslatedObj, translatedObj);
+
+        const sortedObjTranslated = sortJsonByNewOrder(jsonNew, jsonTranslated);
+        $('#updateResult').val(JSON.stringify(sortedObjTranslated, null, Number($('#spaceRow_update').val())));
+
+        // Tạo bảng và gán dữ liệu cho bảng
+        const dataTable = createDataTable(jsonNew, sortedObjTranslated);
+        $('#tb_updateBody').html(createTable('#tb_update-Template', dataTable));
+
+        // Tự động điều chỉnh chiều cao của tất cả các textarea
+        $('#tb_updateBody').find('textarea').each(function () {
+            autoResizeTextarea(this);
+        });
+
+        $('#btn-update_copy').css('visibility', 'unset'); // Hiển thị nút sao chép
+        stopProgressBar('#progressUpdate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
+    } catch (error) {
+        console.log(error);
+        stopProgressBar('#progressUpdate', 0);
+        showErrorToast("Có lỗi xảy ra trong quá trình dịch");
     }
-    const translatedObj = importObj(newValuesObj.paths, translatedValues); // Tạo obj mới với values đã dịch
-
-    // Tách changedValues thành các mảng để dịch
-    const changedValuesObj = exportObj(changedValues);
-    const textGroupsChanged = splitTexts(changedValuesObj.values.map(convertSymbol), 1000); // Tách văn bản của mảng thay đổi
-    const changedTranslatedValues = [];
-
-    // Lặp và dịch này mảng văn bản
-    for (const group of textGroupsChanged) {
-        const groupText = group.join('\n'); // Gộp mảng thành văn bản
-        const text = await translation(groupText, 'en', 'vi', API[0]);
-        changedTranslatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
-    }
-    const changedTranslatedObj = importObj(changedValuesObj.paths, changedTranslatedValues); // Tạo obj mới với values đã dịch
-
-    // Thay thế dữ liệu mới từ changedValues cho jsonOld
-    _.forEach(changedValues, (value, key) => {
-        jsonOld[key] = value;
-    });
-
-    // Thay thế dữ liệu mới từ changedTranslatedObj cho jsonTranslated
-    _.forEach(changedTranslatedObj, (value, key) => {
-        jsonTranslated[key] = value;
-    });
-
-    // Thêm các giá trị mới từ newValues vào jsonOld
-    _.forEach(newValues, (value, key) => {
-        jsonOld[key] = value;
-    });
-
-    // Thêm các giá trị đã dịch từ translatedObj vào jsonTranslated
-    _.forEach(translatedObj, (value, key) => {
-        jsonTranslated[key] = value;
-    });
-
-    const sortedObjTranslated = sortJsonByNewOrder(jsonNew, jsonTranslated);
-    $('#updateResult').val(JSON.stringify(sortedObjTranslated, null, 2));
-
-    // Tạo biến dataTable
-    const dataTable = _.map(jsonNew, (value, key) => ({
-        key: key,
-        value: value,
-        translated: sortedObjTranslated[key]
-    }));
-
-    // Tạo bảng và gán dữ liệu cho bảng
-    $('#tb_updateBody').html(createTable('#tb_update-Template', dataTable));
-
-    $('#btn-update_copy').css('visibility', 'unset'); // Hiển thị nút sao chép
 });
 
 // Nút sao chép kết quả

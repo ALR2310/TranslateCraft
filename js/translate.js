@@ -122,14 +122,14 @@ function createTable(element_content, dataTable = []) {
 }
 
 // Hàm để cập nhật giá  trị trên bảng
-function updateTextTranslated(element) {
+function updateTextTranslated(element, elementForUpdate, elementForSpace) {
     const key = $(element).closest('tr').find('.key-column').text();
     const newValue = $(element).val();
 
     try {
-        const transResult = JSON.parse($('#transResult').val());
+        const transResult = JSON.parse($(elementForUpdate).val());
         _.set(transResult, key, newValue);
-        $('#transResult').val(JSON.stringify(transResult, null, Number($('#spaceRow').val())));
+        $(elementForUpdate).val(JSON.stringify(transResult, null, Number($(elementForSpace).val())));
     } catch (err) {
         console.log(err);
         showErrorToast("Có lỗi xảy ra khi cập nhật nội dung");
