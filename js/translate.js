@@ -1,4 +1,4 @@
-const API = [
+var API = [
     'https://script.google.com/macros/s/AKfycbzcw3_ujuH04arRj1KLI2j0yXQE8jUb5POHBFPi0NAfZEBAaKe9AcwvxyahI3stGwrh2A/exec',
     'https://script.google.com/macros/s/AKfycbxEmmZFo2qYKuasmbnptS7K4umOy2PsCMe3F2uF13OqUZBdeY5ziTc00GyvoN2PtaV7kA/exec',
     'https://script.google.com/macros/s/AKfycbxZhcRkfbT_86cWh5_B4jF9aXCjTIbjCpsbZga_TafiAF4zLUupy0w_MO2ta8h2pvr-/exec'
@@ -213,7 +213,7 @@ $('#btn-translate').click(async function () {
             translated: translatedValues[index]
         }));
 
-        // Gánh dữ liệu cho bảng
+        // Tạo bảng và gán dữ liệu cho bảng
         $('#tb_translateBody').html(createTable('#tb_translate-Template', dataTable));
 
         // Tự động điều chỉnh chiều cao của tất cả các textarea
