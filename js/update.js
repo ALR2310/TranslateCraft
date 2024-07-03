@@ -18,6 +18,31 @@ $('#showText').on('change', function () {
     }
 });
 
+$('#update-openFiles').on('change', function (e) {
+    const files = e.target.files;
+
+    if (files.length > 0) {
+        const handleFile = (file, index) => {
+            const reader = new FileReader(); 
+            reader.onload = function (res) {
+                if (index === 0)
+                    $('#textJsonNew').val(res.target.result);
+                else if (index === 1)
+                    $('#textJsonOld').val(res.target.result);
+                else
+                    $('#textJsonTranslated').val(res.target.result);
+            };
+
+            reader.readAsText(file); 
+        };
+
+        Array.from(files).forEach((file, index) => {
+            handleFile(file, index);
+        });
+    }
+});
+
+
 // -------------------------------------------------------------
 
 const jsonNew1 = {
