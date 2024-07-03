@@ -69,6 +69,19 @@ function importObj(paths, values) {
     return result;
 }
 
+// Sắp xếp lại đối tượng
+function sortedObj(object, objToSort) {
+    const sortedObj = {};
+
+    _.forEach(object, (value, key) => {
+        if (objToSort.hasOwnProperty(key)) {
+            sortedObj[key] = objToSort[key];
+        }
+    });
+
+    return sortedObj;
+}
+
 // Tách văn bản ra các nhóm nhỏ
 function splitTexts(textArray, maxLength) {
     const groups = [];
@@ -95,7 +108,7 @@ function splitTexts(textArray, maxLength) {
     return groups;
 }
 
-// Dịch văn bản
+// Hàm dịch văn bản
 async function translation(text, source_lang, target_lang, api_url) {
     const params = { text: text, source: source_lang, target: target_lang }
     const queryString = new URLSearchParams(params).toString();
@@ -112,13 +125,39 @@ async function translation(text, source_lang, target_lang, api_url) {
     }
 }
 
-/* -------------- Các hàm liên quan đến tạo bảng và các sự kiện -------------- */
+// Hàm dịch object
+async function translateObj(object, textLimit, api) {
+    const valuesObj = exportObj(object); // Trả về một obj với values và paths
+    // Tách văn bản ra các nhóm nhỏ và chuyển đổi ký tự nếu có
+    const textGroups = splitTexts(valuesObj.values.map(convertSymbol), textLimit);
+    const translatedValues = [];
+
+    for (const group of textGroups) {
+        const groupText = group.join('\n');
+        const text = await translation(groupText, 'auto', 'vi', api);
+        translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+    }
+
+    // Trả về một obj mới với values đã dịch
+    return importObj(valuesObj.paths, translatedValues);
+}
+
+/* ------------------ Các hàm liên quan đến bảng ------------------ */
 
 // Tạo bảng
 function createTable(element_content, dataTable = []) {
     const template = Handlebars.compile(convertPlaceHbs($(element_content).html()));
     const data = template({ dataTable: dataTable });
     return data;
+}
+
+// Tạo dữ liệu cho bảng
+function createDataTable(obj, objTranslated) {
+    return _.map(obj, (value, key) => ({
+        key: key,
+        value: value,
+        translated: objTranslated[key]
+    }));
 }
 
 // Hàm để cập nhật giá  trị trên bảng
@@ -189,34 +228,21 @@ function stopProgressBar(element, timeout) {
 // Nút dịch Json
 $('#btn-translate').click(async function () {
     try {
-        startProgressBar('#progressTranslate', 500); // Bắt đầu thanh tiến trình, cập nhật mỗi 0.5s
-        const textJson = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
-        const { paths, values } = exportObj(textJson); // Tách obj thành các mảng
-        // Tách văn bản giới hạn mỗi lần dịch và thay thế các ký tự
-        const textGroups = splitTexts(values.map(convertSymbol), Number($('#textLimit').val()));
-        const translatedValues = [];
+        startProgressBar('#progressTranslate', 500);
+        const objText = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
 
-        // Lặp và dịch từng mảng văn bản
-        for (const group of textGroups) {
-            const groupText = group.join('\n'); // Gộp mảng thành văn bản
-            const text = await translation(groupText, 'en', 'vi', API[$('#api').val()]);
-            translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
+        // Dịch obj
+        const objTranslated = await translateObj(objText, Number($('#textLimit').val()), API[$('#api').val()]);
 
-            const translatedObj = importObj(paths, translatedValues); // Tạo obj mới với values đã dịch
-            $('#transResult').val(JSON.stringify(translatedObj, null, Number($('#spaceRow').val())));
-        }
-
-        // Tạo dữ liệu cho bảng
-        const dataTable = paths.map((path, index) => ({
-            key: path.join('.'),
-            value: values[index],
-            translated: translatedValues[index]
-        }));
+        // Sắp xếp lại dữ liệu theo obj gốc và in ra kết quả
+        const sorted = sortedObj(objText, objTranslated);
+        $('#transResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
 
         // Tạo bảng và gán dữ liệu cho bảng
+        const dataTable = createDataTable(objText, sorted);
         $('#tb_translateBody').html(createTable('#tb_translate-Template', dataTable));
 
-        // Tự động điều chỉnh chiều cao của tất cả các textarea
+        // Điều chỉnh chiều cao của tất cả các textarea
         $('#tb_translateBody').find('textarea').each(function () {
             autoResizeTextarea(this);
         });
@@ -225,8 +251,8 @@ $('#btn-translate').click(async function () {
         stopProgressBar('#progressTranslate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
     } catch (err) {
         console.log(err);
-        stopProgressBar('#progressTranslate', 0);
         showErrorToast("Có lỗi xảy ra trong quá trình dịch");
+        stopProgressBar('#progressTranslate', 0);
     }
 });
 

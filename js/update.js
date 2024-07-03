@@ -45,34 +45,6 @@ $('#update-openFiles').on('change', function (e) {
 
 // -------------------------------------------------------------
 
-const jsonNew1 = {
-    "people.one": "accountant",
-    "people.two": "actor",
-    "people.three": "artist manga",
-    "people.four": "astronaut",
-    "people.five": "astronomer",
-    "people.six": "entrepreneur",
-}
-
-const jsonOld1 = {
-    "people.one": "accountant",
-    "people.two": "actor",
-    "people.three": "artist",
-    "people.seven": "doctor",
-}
-
-const jsonTranslated1 = {
-    "people.one": "kế toán viên",
-    "people.two": "diễn viên",
-    "people.three": "nghệ sĩ",
-    "people.seven": "doctor",
-}
-
-$('#textJsonNew').val(JSON.stringify(jsonNew1, null, 2));
-$('#textJsonOld').val(JSON.stringify(jsonOld1, null, 2));
-$('#textJsonTranslated').val(JSON.stringify(jsonTranslated1, null, 2));
-
-
 // Tìm các giá trị mới chỉ có trong jsonNew
 function findNewValues(objNew, objOld) {
     const newEntries = _.reduce(objNew, (result, value, key) => {
@@ -123,44 +95,6 @@ function updateObject(targetObj, changedValues, newValues) {
     });
 }
 
-// Hàm tạo dữ liệu bảng
-function createDataTable(obj, objTranslated) {
-    return _.map(obj, (value, key) => ({
-        key: key,
-        value: value,
-        translated: objTranslated[key]
-    }));
-}
-
-// Hàm dịch và nhập đối tượng
-async function translateAndImport(values, textLimit, api) {
-    const valuesObj = exportObj(values);
-    const textGroups = splitTexts(valuesObj.values.map(convertSymbol), textLimit);
-    const translatedValues = [];
-
-    for (const group of textGroups) {
-        const groupText = group.join('\n');
-        const text = await translation(groupText, 'en', 'vi', api);
-        translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
-    }
-
-    return importObj(valuesObj.paths, translatedValues);
-}
-
-// Sắp xếp lại đối tượng
-function sortJsonByNewOrder(obj, objToSort) {
-    const sortedObj = {};
-
-    _.forEach(obj, (value, key) => {
-        if (objToSort.hasOwnProperty(key)) {
-            sortedObj[key] = objToSort[key];
-        }
-    });
-
-    return sortedObj;
-}
-
-
 $('#btn-update').click(async function () {
     try {
         startProgressBar('#progressUpdate', 500); // Bắt đầu thanh tiến trình, cập nhật mỗi 0.5s
@@ -175,15 +109,16 @@ $('#btn-update').click(async function () {
         // Xoá các cặp giá trị cũ
         removeOldValues(removedKeys, jsonOld, jsonTranslated);
 
-        // Dịch và thêm các giá trị mới
-        const translatedObj = await translateAndImport(newValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
-        const changedTranslatedObj = await translateAndImport(changedValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
+        // Dịch và nhập lại thành một obj
+        const objTranslated = await translateObj(newValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
+        const changedTranslated = await translateObj(changedValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
 
         // Thay thế và thêm dữ liệu
         updateObject(jsonOld, changedValues, newValues);
-        updateObject(jsonTranslated, changedTranslatedObj, translatedObj);
+        updateObject(jsonTranslated, changedTranslated, objTranslated);
 
-        const sortedObjTranslated = sortJsonByNewOrder(jsonNew, jsonTranslated);
+        // Sắp xếp lại dữ liệu theo obj gốc và in ra giao diện
+        const sortedObjTranslated = sortedObj(jsonNew, jsonTranslated);
         $('#updateResult').val(JSON.stringify(sortedObjTranslated, null, Number($('#spaceRow_update').val())));
 
         // Tạo bảng và gán dữ liệu cho bảng
