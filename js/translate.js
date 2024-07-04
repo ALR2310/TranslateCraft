@@ -82,6 +82,22 @@ function sortedObj(object, objToSort) {
     return sortedObj;
 }
 
+// Lọc các cặp từ đối tượng
+function filterObj(jsonObj, keywords) {
+    const keywordArray = keywords.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
+
+    if (keywordArray.length === 0)
+        return [jsonObj, {}];
+
+    const filteredObj = _.pickBy(jsonObj, (value, key) => {
+        return _.some(keywordArray, keyword => key.includes(keyword));
+    });
+
+    const remainingObj = _.omit(jsonObj, _.keys(filteredObj));
+
+    return [filteredObj, remainingObj];
+}
+
 // Tách văn bản ra các nhóm nhỏ
 function splitTexts(textArray, maxLength) {
     const groups = [];
@@ -125,52 +141,24 @@ async function translation(text, source_lang, target_lang, api_url) {
     }
 }
 
-// Lọc các path cần dịch
-function filterPaths(valuesObj, filters) {
-    let filteredValues = [];
-    let filteredPaths = [];
-
-    if (filters && filters.length > 0) {
-        _.forEach(valuesObj.paths, (path, index) => {
-            const fullPath = path.join('.');
-            if (filters.some(filter => fullPath.includes(filter.trim()))) {
-                filteredValues.push(valuesObj.values[index]);
-                filteredPaths.push(path);
-            }
-        });
-    } else {
-        filteredValues = valuesObj.values;
-        filteredPaths = valuesObj.paths;
-    }
-
-    return { filteredValues, filteredPaths };
-}
-
 // Hàm dịch object
-async function translateObj(object, textLimit, api, filters) {
-    const valuesObj = exportObj(object); // Trả về một obj với values và paths
-
-    // Lọc các paths và values dựa trên từ khóa
-    const { filteredValues, filteredPaths } = filterPaths(valuesObj, filters);
-
+async function translateObj(object, source_lang, target_lang, api, textLimit, filter) {
+    const filtedObj = filterObj(object, filter); // Lọc dữ liệu obj
+    const extractedObj = exportObj(filtedObj[0]); // Trả về một obj với values và paths
     // Tách văn bản ra các nhóm nhỏ và chuyển đổi ký tự nếu có
-    const textGroups = splitTexts(filteredValues.map(convertSymbol), textLimit);
+    const textGroups = splitTexts(extractedObj.values.map(convertSymbol), textLimit);
     const translatedValues = [];
 
     for (const group of textGroups) {
         const groupText = group.join('\n');
-        const text = await translation(groupText, 'auto', 'vi', api);
+        const text = await translation(groupText, source_lang, target_lang, api);
         translatedValues.push(...text.translateText.split('\n').map(recoverySymbol));
     }
 
-    // Tạo đối tượng mới từ paths đã dịch và giữ lại các paths không dịch
-    const translatedObj = importObj(filteredPaths, translatedValues);
-    const finalObj = _.cloneDeep(object);
-    _.forOwn(translatedObj, (value, key) => {
-        _.set(finalObj, key, value);
-    });
+    // Trả về một obj mới với values đã dịch
+    const objTranslated = importObj(extractedObj.paths, translatedValues);
 
-    return finalObj;
+    return {...filtedObj[1], ...objTranslated};
 }
 
 /* ------------------ Các hàm liên quan đến bảng ------------------ */
@@ -261,10 +249,10 @@ $('#btn-translate').click(async function () {
     try {
         startProgressBar('#progressTranslate', 500);
         const objText = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
-        const filter = $('#filter').val().split(','); // Lấy từ khóa từ textarea filter
+        const filter = $('#filter').val();
 
         // Dịch obj
-        const objTranslated = await translateObj(objText, Number($('#textLimit').val()), API[$('#api').val()], filter);
+        const objTranslated = await translateObj(objText, 'auto', 'vi', API[$('#api').val()], Number($('#textLimit').val()), filter);
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra kết quả
         const sorted = sortedObj(objText, objTranslated);
