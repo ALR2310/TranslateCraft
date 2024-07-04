@@ -125,10 +125,9 @@
     </div>
 </div>
 
-
 <!-- Modal -->
-<div id="modal-setting" class="modal fade" aria-labelledby="modal-setting" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog">
+<div id="modal-setting" class="modal modal-lg fade" aria-labelledby="modal-setting" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header p-2">
                 <h5 class="modal-title w-100 text-center fw-bold">Tuỳ chọn dịch</h5>
@@ -145,9 +144,34 @@
 
                 <textarea id="filterContent" class="form-control form-control-sm"
                     placeholder="Nhập các từ khóa cách nhau bằng dấu phẩy. Ví dụ: abc, bdf, ..."></textarea>
+
+                <div class="tableScroll border rounded-1 mt-3" style="height: 350px;">
+                    <table id="tb_filter" class="table table-sm table-hover border-start border-end"
+                        style="table-layout: auto;">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col">Keys</th>
+                                <th scope="col">Values</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb_filterBody"></tbody>
+                        <script type="text/x-handlebars-template" id="tb_filter-Template">
+                            %#if dataTable%
+                            %#each dataTable%
+                                <tr>
+                                    <td class="key-column" style="max-width: 300px;">%key%</td>
+                                    <td class="value-column">%value%</td>
+                                </tr>
+                            %/each%
+                            %/if%
+                        </script>
+                    </table>
+                </div>
+
             </div>
             <div class="modal-footer p-1">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"
+                    style="width: 100px;">Đóng</button>
             </div>
         </div>
     </div>

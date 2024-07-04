@@ -12,6 +12,7 @@ $('#translate-openFiles').on('change', function (e) {
         reader.onload = function (res) {
             const content = res.target.result;
             $('#transText').val(content);
+            createTableFilter(content);
         }
         reader.readAsText(file);
     }
@@ -23,12 +24,40 @@ $('#transText').on('input', function () {
         $(this).removeClass('is-invalid');
         if ($(this).val() === "") return;
         JSON.parse($(this).val());
-
+        createTableFilter($(this).val());
     } catch (e) {
         $(this).addClass('is-invalid');
         // $(this).text("Nội dung không phải là một JSON hợp lệ")
     }
 });
+
+/* ---------------- Các hàm và sự kiên liên quan đến filter -------------- */
+function createTableFilter(obj) {
+    try {
+        obj = JSON.parse(obj);
+        const dataTable = _.map(obj, (value, key) => ({ key, value }));
+        $('#tb_filterBody').html(createTable('#tb_filter-Template', dataTable));
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function highlighTableFilter(keywords, tableBodyElement) {
+    const keywordArray = keywords.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
+    if (keywordArray.length === 0) return;
+    const highlightClass = $('#filterType').is(':checked') ? 'table-danger' : 'table-success';
+
+    $(tableBodyElement).find('tr').each(function () {
+        const key = $(this).find('.key-column').text().toLowerCase();
+        const hasKeyword = keywordArray.some(keyword => key.includes(keyword));
+        $(this).removeClass('table-danger table-success');
+        if (hasKeyword) $(this).addClass(highlightClass);
+    });
+}
+
+// Gắn sự kiện cho các thẻ
+$('#filterContent').on('input', function () { highlighTableFilter($(this).val(), '#tb_filterBody') });
+$('#filterType').on('change', function () { highlighTableFilter($('#filterContent').val(), '#tb_filterBody') });
 
 /* -------------- Các hàm liên quan đến dịch văn bản json -------------- */
 
@@ -295,6 +324,3 @@ $('#btn-copy').click(function () {
         showErrorToast('Có lỗi khi sao chép nội dung!');
     });
 });
-
-
-
