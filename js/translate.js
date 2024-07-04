@@ -142,9 +142,8 @@ async function translation(text, source_lang, target_lang, api_url) {
 }
 
 // Hàm dịch object
-async function translateObj(object, source_lang, target_lang, api, textLimit, filter) {
-    const filtedObj = filterObj(object, filter); // Lọc dữ liệu obj
-    const extractedObj = exportObj(filtedObj[0]); // Trả về một obj với values và paths
+async function translateObj(object, source_lang, target_lang, api, textLimit) {
+    const extractedObj = exportObj(object); // Trả về một obj với values và paths
     // Tách văn bản ra các nhóm nhỏ và chuyển đổi ký tự nếu có
     const textGroups = splitTexts(extractedObj.values.map(convertSymbol), textLimit);
     const translatedValues = [];
@@ -156,9 +155,7 @@ async function translateObj(object, source_lang, target_lang, api, textLimit, fi
     }
 
     // Trả về một obj mới với values đã dịch
-    const objTranslated = importObj(extractedObj.paths, translatedValues);
-
-    return {...filtedObj[1], ...objTranslated};
+    return importObj(extractedObj.paths, translatedValues);
 }
 
 /* ------------------ Các hàm liên quan đến bảng ------------------ */
@@ -203,7 +200,7 @@ function recoveryTextTranslated(element) {
 // Hàm tạo autoResize cho các textarea trên table
 function autoResizeTextarea(element) {
     $(element).css("height", `${element.scrollHeight}px`);
-    $(element).on('input', function () {
+    $(element).on('input, mouseenter', function () {
         $(element).css("height", 0);
         $(element).css("height", `${element.scrollHeight}px`);
     })
@@ -248,18 +245,28 @@ function stopProgressBar(element, timeout) {
 $('#btn-translate').click(async function () {
     try {
         startProgressBar('#progressTranslate', 500);
-        const objText = JSON.parse($('#transText').val()); // Lấy Obj trên textarea
-        const filter = $('#filter').val();
+        const jsonText = JSON.parse($('#transText').val());
+        let objText = jsonText // Lấy Obj trên textarea
 
-        // Dịch obj
-        const objTranslated = await translateObj(objText, 'auto', 'vi', API[$('#api').val()], Number($('#textLimit').val()), filter);
+        // Lọc đối tượng và xác định tùy chọn
+        const [filteredObj, remainingObj] = filterObj(objText, $('#filterContent').val());
+        const options = $('#filterType').is(':checked') ?
+            { filteredObj: remainingObj, remainingObj: filteredObj } :
+            { filteredObj: filteredObj, remainingObj: remainingObj };
+        objText = $('#filterType').is(':checked') ? remainingObj : filteredObj;
+
+        // Dịch obj với các tuỳ chọn nếu có
+        const objTranslated = await translateObj(objText, 'auto', 'vi', API[$('#api').val()], Number($('#textLimit').val()));
+
+        // Gọp lại thành obj hoàn chỉnh
+        const objcombined = { ...objTranslated, ...options.remainingObj }
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra kết quả
-        const sorted = sortedObj(objText, objTranslated);
+        const sorted = sortedObj(jsonText, objcombined);
         $('#transResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
 
         // Tạo bảng và gán dữ liệu cho bảng
-        const dataTable = createDataTable(objText, sorted);
+        const dataTable = createDataTable(jsonText, sorted);
         $('#tb_translateBody').html(createTable('#tb_translate-Template', dataTable));
 
         // Điều chỉnh chiều cao của tất cả các textarea

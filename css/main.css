@@ -211,3 +211,11 @@ body {
     width: 1px;
     height: 1px;
 }
+
+.form-check-list .form-check-input:checked+.form-check-label::after {
+    content: "Danh sách đen";
+}
+
+.form-check-list .form-check-label::after {
+    content: "Danh sách trắng";
+}

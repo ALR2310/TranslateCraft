@@ -25,7 +25,7 @@
     </div>
     <!-- Bảng so sánh và chỉnh sửa -->
     <div class="col-7">
-        <p class="mb-0">Bảng dữ liệu:</p>
+        <p class="mb-0">Bảng so sánh dữ liệu:</p>
         <div class="tableScroll border rounded-1" style="height: 460px;">
             <table id="tb_translate" class="table table-sm table-hover border-start border-end"
                 style="table-layout: auto;">
@@ -134,14 +134,17 @@
                 <h5 class="modal-title w-100 text-center fw-bold">Tuỳ chọn dịch</h5>
             </div>
             <div class="modal-body">
-                <div class="">
-                    <label for="filter">Dịch theo key:
-                        <span class="position-absolute badge rounded-pill text-dark"
-                            style="transform: translate(-30%, -30%">?</span>
-                    </label>
-                    <textarea id="filter" class="form-control form-control-sm"
-                        placeholder="Nhập các từ khóa cách nhau bằng dấu phẩy. Ví dụ: abc, bdf, ..."></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="m-0">Dịch các cặp trong danh sách</p>
+
+                    <div class="form-check form-switch form-check-list">
+                        <input class="form-check-input pointer" type="checkbox" role="switch" id="filterType">
+                        <label class="form-check-label pointer no-copy" for="filterType"></label>
+                    </div>
                 </div>
+
+                <textarea id="filterContent" class="form-control form-control-sm"
+                    placeholder="Nhập các từ khóa cách nhau bằng dấu phẩy. Ví dụ: abc, bdf, ..."></textarea>
             </div>
             <div class="modal-footer p-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Đóng</button>
