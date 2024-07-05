@@ -324,3 +324,41 @@ $('#btn-copy').click(function () {
         showErrorToast('Có lỗi khi sao chép nội dung!');
     });
 });
+
+
+
+var translatePage = JSON.parse(localStorage.getItem("pages")).translate;
+$('#showTextInput').prop('checked', translatePage.showTextInput);
+$('#showTextOutput').prop("checked", translatePage.showTextOutput);
+
+// Chuyển đổi các input và cách xem trên trang
+$('#showTextInput, #showTextOutput').on('change', function () { toggleInOutText(); });
+
+function toggleInOutText() {
+    function updateVisibility(selector, isVisible, isOtherVisible) {
+        const $element = $(selector).closest('div');
+        if (isVisible) {
+            $element.removeClass('d-none');
+            $(selector).css('height', isOtherVisible ? '218px' : '460px');
+        } else {
+            $element.addClass('d-none');
+        }
+    }
+
+    const showTextInput = $('#showTextInput').is(':checked');
+    const showTextOutput = $('#showTextOutput').is(':checked');
+
+    // Cập nhật hiển thị của các phần tử dựa trên trạng thái checkbox
+    updateVisibility('#transText', showTextInput, showTextOutput);
+    updateVisibility('#transResult', showTextOutput, showTextInput);
+
+    // Cập nhật hiển thị của khối văn bản
+    if (!showTextInput && !showTextOutput) {
+        $('#col-text_translate').addClass('d-none');
+        $('#col-table_translate').removeClass('col-7');
+    } else {
+        $('#col-text_translate').removeClass('d-none');
+        $('#col-table_translate').addClass('col-7');
+    }
+}
+

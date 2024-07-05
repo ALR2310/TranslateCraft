@@ -21,15 +21,20 @@ let pages = {
         isShow: false,
         url: urlPage + 'views/translate.hbs',
         script: urlPage + 'js/translate.js',
-        content: '#page-translate_content'
+        content: '#page-translate_content',
+        showTextInput: true,
+        showTextOutput: true
     },
     update: {
         isLoad: false,
         isShow: false,
         url: urlPage + 'views/update.hbs',
         script: 'js/update.js',
-        content: '#page-update_content'
-    }
+        content: '#page-update_content',
+        showTextInput: false,
+        showTextOutput: true
+    },
+    currentPage: 'translate'
 };
 
 function showPage(pageKey) {
@@ -58,18 +63,12 @@ function showPage(pageKey) {
     page.isShow = true;
     otherPage.isShow = false;
 
-    localStorage.setItem("page", pageKey);
+    pages.currentPage = pageKey;
+    localStorage.setItem("pages", JSON.stringify(pages));
 }
 
-$('#page-translate').click(function () {
-    showPage('translate');
-});
-
-$('#page-update').click(function () {
-    showPage('update');
-});
-
-const currentPage = localStorage.getItem("page");
-if (currentPage === "update") $('#page-update').click();
-else $('#page-translate').click();
-
+$('#page-translate').click(function () { showPage('translate'); });
+$('#page-update').click(function () { showPage('update'); });
+const currentPage = JSON.parse(localStorage.getItem("pages")).currentPage || 'translate';
+// const currentPage = 'translate';
+$(`#page-${currentPage}`).click()
