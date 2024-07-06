@@ -32,7 +32,7 @@
 <div class="row">
     <div id="col-text_update" class="col-5">
         <label for="updateResult">Kết quả:</label>
-        <textarea id="updateResult" class="form-control form-control-sm"
+        <textarea id="updateResult" class="form-control form-control-sm" readonly
             style="height: 460px; resize: none;"></textarea>
     </div>
 
@@ -49,7 +49,7 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="tb_updateBody">
+                <tbody>
                 </tbody>
                 <script type="text/x-handlebars-template" id="tb_update-Template">
                     %#if dataTable%
@@ -57,7 +57,7 @@
                             <tr>
                                 <td class="key-column">%key%</td>
                                 <td class="value-column">%value%</td>
-                                <td style="width: 500px;">
+                                <td style="width: 275px;">
                                     <textarea class="form-control overflow-y-hidden" style="height: 17px;"
                                         oninput="updateTextTranslated(this, '#updateResult', '#spaceRow_update')">%translated%</textarea>
                                 </td>
@@ -77,7 +77,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal lọc các cặp -->
 <div id="modal-update" class="modal modal-lg fade" aria-labelledby="modal-update" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -106,7 +106,7 @@
                                 <th scope="col">Values</th>
                             </tr>
                         </thead>
-                        <tbody id="tb_filterUpdateBody"></tbody>
+                        <tbody></tbody>
                         <script type="text/x-handlebars-template" id="tb_filterUpdate-Template">
                             %#if dataTable%
                             %#each dataTable%
@@ -120,6 +120,52 @@
                     </table>
                 </div>
 
+            </div>
+            <div class="modal-footer p-1">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-changes">
+                        Các thay đổi
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"
+                        style="width: 100px;">Đóng</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xem các thay đổi -->
+<div id="modal-changes" class="modal modal-lg fade" aria-labelledby="modal-changes" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <h5 class="modal-title w-100 text-center fw-bold">Các thay đổi</h5>
+            </div>
+            <div class="modal-body">
+                <div class="tableScroll border rounded-1 mt-3" style="height: 350px;">
+                    <table id="tb_changesUpdate" class="table table-sm table-hover border-start border-end"
+                        style="table-layout: auto;">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col">Keys</th>
+                                <th scope="col">Values</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <script type="text/x-handlebars-template" id="tb_changesUpdate-Template">
+                            %#if dataTable%
+                            %#each dataTable%
+                                <tr>
+                                    <td class="key-column" style="max-width: 300px;">%key%</td>
+                                    <td class="value-column">%value%</td>
+                                </tr>
+                            %/each%
+                            %/if%
+                        </script>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer p-1">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"

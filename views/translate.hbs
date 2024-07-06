@@ -44,15 +44,14 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="tb_translateBody">
-                </tbody>
+                <tbody></tbody>
                 <script type="text/x-handlebars-template" id="tb_translate-Template">
                     %#if dataTable%
                         %#each dataTable%
                             <tr>
                                 <td class="key-column">%key%</td>
-                                <td class="value-column" style="max-width: 450px;">%value%</td>
-                                <td style="min-width: 275px;max-width: 500px;">
+                                <td class="value-column">%value%</td>
+                                <td style="width: 275px;">
                                     <textarea class="form-control overflow-y-hidden" style="height: 17px;"
                                         oninput="updateTextTranslated(this, '#transResult', '#spaceRow')">%translated%</textarea>
                                 </td>
@@ -101,7 +100,7 @@
                                 <th scope="col">Values</th>
                             </tr>
                         </thead>
-                        <tbody id="tb_filterBody"></tbody>
+                        <tbody></tbody>
                         <script type="text/x-handlebars-template" id="tb_filter-Template">
                             %#if dataTable%
                             %#each dataTable%

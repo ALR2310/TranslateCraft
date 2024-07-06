@@ -27,9 +27,11 @@ function toggleInOutText() {
     if (!showTextInput && !showTextOutput) {
         $('#col-text_translate').addClass('d-none');
         $('#col-table_translate').removeClass('col-7');
+        resizeRowTable('#tb_translate', 3, "300px", "auto", "500px");
     } else {
         $('#col-text_translate').removeClass('d-none');
         $('#col-table_translate').addClass('col-7');
+        resizeRowTable('#tb_translate', 3, "200px", "auto", "275px");
     }
 }
 
@@ -221,6 +223,22 @@ async function translateObj(object, source_lang, target_lang, api, textLimit) {
 
 /* ------------------ Các hàm liên quan đến bảng ------------------ */
 
+function resizeRowTable(tableElement, colNumber, ...rowWidths) {
+    if (rowWidths.length === 1) rowWidths = new Array(colNumber).fill(rowWidths[0]);
+    if (rowWidths.length > colNumber) rowWidths = rowWidths.slice(0, colNumber);
+    if (colNumber !== rowWidths.length) {
+        console.error("Số lượng cột không khớp với số lượng chiều dài.");
+        return;
+    }
+
+    // Lấy tất cả các hàng trong bảng
+    $(tableElement).find('tr').each(function () {
+        $(this).find('tbody th').each(function (index) {
+            if (index < colNumber) $(this).css('width', rowWidths[index]);
+        });
+    });
+}
+
 // Tạo bảng
 function createTable(element_content, dataTable = []) {
     const template = Handlebars.compile(convertPlaceHbs($(element_content).html()));
@@ -305,6 +323,7 @@ function stopProgressBar(element, timeout) {
 // Nút dịch Json
 $('#btn-translate').click(async function () {
     try {
+        $(this).addClass("disabled");
         startProgressBar('#progressTranslate', 500);
         const jsonText = JSON.parse($('#transText').val());
         let objText = jsonText // Lấy Obj trên textarea
@@ -328,19 +347,21 @@ $('#btn-translate').click(async function () {
 
         // Tạo bảng và gán dữ liệu cho bảng
         const dataTable = createDataTable(jsonText, sorted);
-        $('#tb_translateBody').html(createTable('#tb_translate-Template', dataTable));
+        $('#tb_translate').find('tbody').html(createTable('#tb_translate-Template', dataTable));
 
         // Điều chỉnh chiều cao của tất cả các textarea
-        $('#tb_translateBody').find('textarea').each(function () {
+        $('#tb_translate').find('tbody textarea').each(function () {
             autoResizeTextarea(this);
         });
 
         $('#btn-copy_translate').css('visibility', 'unset'); // Hiển thị nút sao chép
         stopProgressBar('#progressTranslate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
+        $(this).removeClass("disabled");
     } catch (err) {
         console.log(err);
         showErrorToast("Có lỗi xảy ra trong quá trình dịch");
         stopProgressBar('#progressTranslate', 0);
+        $(this).removeClass("disabled");
     }
 });
 
