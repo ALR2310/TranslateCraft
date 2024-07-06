@@ -101,7 +101,7 @@ function filterTableUpdate() {
 }
 
 function changesTableUpdate(objNewValues, objChangedValues, objOldKeys) {
-    const combiedObj = { ...objNewValues, ...objChangedValues, ...objOldKeys}
+    const combiedObj = { ...objNewValues, ...objChangedValues, ...objOldKeys }
 
     // Tạo bảng các thay đổi
     createTableFilter(combiedObj, "#tb_changesUpdate", "#tb_changesUpdate-Template");
@@ -156,15 +156,22 @@ function findChangedValues(objNew, objOld) {
 
 // Tìm các khóa đã cũ và không có trong jsonNew
 function findOldKeys(objNew, objOld) {
-    const oldKeys = _.keys(objOld), newKeys = _.keys(objNew);
-    return _.difference(oldKeys, newKeys);
+    const differenceKeys = _.difference(_.keys(objOld), _.keys(objNew));
+    const oldEntries = _.reduce(differenceKeys, (result, key) => {
+        result[key] = objOld[key];
+        return result;
+    }, {});
+
+    return oldEntries;
 }
 
 // Hàm xoá giá trị cũ
-function removeOldValues(keys, objOld, translatedObj) {
-    _.forEach(keys, key => {
-        delete objOld[key];
-        delete translatedObj[key];
+function removeOldValues(objKeys, ...objsToDelete) {
+    const keys = _.keys(objKeys);
+    _.forEach(objsToDelete, obj => {
+        _.forEach(keys, key => {
+            _.unset(obj, key);
+        });
     });
 }
 
