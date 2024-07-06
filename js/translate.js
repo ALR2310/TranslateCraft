@@ -1,8 +1,48 @@
-var API = [
-    'https://script.google.com/macros/s/AKfycbzcw3_ujuH04arRj1KLI2j0yXQE8jUb5POHBFPi0NAfZEBAaKe9AcwvxyahI3stGwrh2A/exec',
-    'https://script.google.com/macros/s/AKfycbxEmmZFo2qYKuasmbnptS7K4umOy2PsCMe3F2uF13OqUZBdeY5ziTc00GyvoN2PtaV7kA/exec',
-    'https://script.google.com/macros/s/AKfycbxZhcRkfbT_86cWh5_B4jF9aXCjTIbjCpsbZga_TafiAF4zLUupy0w_MO2ta8h2pvr-/exec'
-]
+// Cài đặt trên trang
+var translatePage = JSON.parse(localStorage.getItem("pages")).translate;
+$('#showTextInput').prop('checked', translatePage.showTextInput);
+$('#showTextOutput').prop("checked", translatePage.showTextOutput);
+
+$('#showTextInput, #showTextOutput').on('change', function () { toggleInOutText(); });
+
+function toggleInOutText() {
+    function updateVisibility(selector, isVisible, isOtherVisible) {
+        const $element = $(selector).closest('div');
+        if (isVisible) {
+            $element.removeClass('d-none');
+            $(selector).css('height', isOtherVisible ? '218px' : '460px');
+        } else {
+            $element.addClass('d-none');
+        }
+    }
+
+    const showTextInput = $('#showTextInput').is(':checked');
+    const showTextOutput = $('#showTextOutput').is(':checked');
+
+    // Cập nhật hiển thị của các phần tử dựa trên trạng thái checkbox
+    updateVisibility('#transText', showTextInput, showTextOutput);
+    updateVisibility('#transResult', showTextOutput, showTextInput);
+
+    // Cập nhật hiển thị của khối văn bản
+    if (!showTextInput && !showTextOutput) {
+        $('#col-text_translate').addClass('d-none');
+        $('#col-table_translate').removeClass('col-7');
+    } else {
+        $('#col-text_translate').removeClass('d-none');
+        $('#col-table_translate').addClass('col-7');
+    }
+}
+
+// Hàm check xem nội dung có phải là một obj không
+function checkIsObj(element) {
+    try {
+        $(element).removeClass('is-invalid');
+        JSON.parse($(element).val());
+    } catch (err) {
+        $(element).addClass('is-invalid');
+        return;
+    }
+}
 
 // Đọc dữ liệu trong tệp
 $('#translate-openFiles').on('change', function (e) {
@@ -10,9 +50,9 @@ $('#translate-openFiles').on('change', function (e) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function (res) {
-            const content = res.target.result;
-            $('#transText').val(content);
-            createTableFilter(content);
+            $('#transText').val(res.target.result);
+            checkIsObj('#transText');
+            createTableFilter(JSON.parse(res.target.result), '#tb_filter', '#tb_filter-Template');
         }
         reader.readAsText(file);
     }
@@ -20,34 +60,26 @@ $('#translate-openFiles').on('change', function (e) {
 
 // kiểm tra lỗi trên text
 $('#transText').on('input', function () {
-    try {
-        $(this).removeClass('is-invalid');
-        if ($(this).val() === "") return;
-        JSON.parse($(this).val());
-        createTableFilter($(this).val());
-    } catch (e) {
-        $(this).addClass('is-invalid');
-        // $(this).text("Nội dung không phải là một JSON hợp lệ")
-    }
+    if ($(this).val() === "") return;
+    checkIsObj(this);
+    createTableFilter(JSON.parse($(this).val()), '#tb_filter', '#tb_filter-Template');
 });
 
-/* ---------------- Các hàm và sự kiên liên quan đến filter -------------- */
-function createTableFilter(obj) {
-    try {
-        obj = JSON.parse(obj);
-        const dataTable = _.map(obj, (value, key) => ({ key, value }));
-        $('#tb_filterBody').html(createTable('#tb_filter-Template', dataTable));
-    } catch (err) {
-        console.log(err);
-    }
+/* ---------------- Các hàm và sự kiên liên quan đến lọc và đánh dấu trên bảng -------------- */
+function createTableFilter(obj, tableElement, templateHbs) {
+    const dataTable = _.map(obj, (value, key) => ({ key, value }));
+    $(tableElement).find('tbody').html(createTable(templateHbs, dataTable));
 }
 
-function highlighTableFilter(keywords, tableBodyElement) {
+function highlighTableFilter(keywords, tableElement, checkboxElement) {
     const keywordArray = keywords.split(',').map(keyword => keyword.trim()).filter(keyword => keyword.length > 0);
-    if (keywordArray.length === 0) return;
-    const highlightClass = $('#filterType').is(':checked') ? 'table-danger' : 'table-success';
+    if (keywordArray.length === 0) {
+        $(tableElement).find('tbody tr').removeClass('table-danger table-success'); return;
+    }
 
-    $(tableBodyElement).find('tr').each(function () {
+    const highlightClass = $(checkboxElement).is(':checked') ? 'table-danger' : 'table-success';
+
+    $(tableElement).find('tbody tr').each(function () {
         const key = $(this).find('.key-column').text().toLowerCase();
         const hasKeyword = keywordArray.some(keyword => key.includes(keyword));
         $(this).removeClass('table-danger table-success');
@@ -56,8 +88,8 @@ function highlighTableFilter(keywords, tableBodyElement) {
 }
 
 // Gắn sự kiện cho các thẻ
-$('#filterContent').on('input', function () { highlighTableFilter($(this).val(), '#tb_filterBody') });
-$('#filterType').on('change', function () { highlighTableFilter($('#filterContent').val(), '#tb_filterBody') });
+$('#filterContent').on('input', function () { highlighTableFilter($(this).val(), '#tb_filter', '#filterType') });
+$('#filterType').on('change', function () { highlighTableFilter($('#filterContent').val(), '#tb_filter', '#filterType') });
 
 /* -------------- Các hàm liên quan đến dịch văn bản json -------------- */
 
@@ -303,7 +335,7 @@ $('#btn-translate').click(async function () {
             autoResizeTextarea(this);
         });
 
-        $('#btn-copy').css('visibility', 'unset'); // Hiển thị nút sao chép
+        $('#btn-copy_translate').css('visibility', 'unset'); // Hiển thị nút sao chép
         stopProgressBar('#progressTranslate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
     } catch (err) {
         console.log(err);
@@ -313,7 +345,7 @@ $('#btn-translate').click(async function () {
 });
 
 // Nút sao chép kết quả
-$('#btn-copy').click(function () {
+$('#btn-copy_translate').click(function () {
     var textarea = $('#transResult');
 
     navigator.clipboard.writeText(textarea.val()).then(function () {
@@ -324,41 +356,3 @@ $('#btn-copy').click(function () {
         showErrorToast('Có lỗi khi sao chép nội dung!');
     });
 });
-
-
-
-var translatePage = JSON.parse(localStorage.getItem("pages")).translate;
-$('#showTextInput').prop('checked', translatePage.showTextInput);
-$('#showTextOutput').prop("checked", translatePage.showTextOutput);
-
-// Chuyển đổi các input và cách xem trên trang
-$('#showTextInput, #showTextOutput').on('change', function () { toggleInOutText(); });
-
-function toggleInOutText() {
-    function updateVisibility(selector, isVisible, isOtherVisible) {
-        const $element = $(selector).closest('div');
-        if (isVisible) {
-            $element.removeClass('d-none');
-            $(selector).css('height', isOtherVisible ? '218px' : '460px');
-        } else {
-            $element.addClass('d-none');
-        }
-    }
-
-    const showTextInput = $('#showTextInput').is(':checked');
-    const showTextOutput = $('#showTextOutput').is(':checked');
-
-    // Cập nhật hiển thị của các phần tử dựa trên trạng thái checkbox
-    updateVisibility('#transText', showTextInput, showTextOutput);
-    updateVisibility('#transResult', showTextOutput, showTextInput);
-
-    // Cập nhật hiển thị của khối văn bản
-    if (!showTextInput && !showTextOutput) {
-        $('#col-text_translate').addClass('d-none');
-        $('#col-table_translate').removeClass('col-7');
-    } else {
-        $('#col-text_translate').removeClass('d-none');
-        $('#col-table_translate').addClass('col-7');
-    }
-}
-

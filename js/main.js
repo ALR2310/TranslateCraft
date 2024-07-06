@@ -1,3 +1,9 @@
+const API = [
+    'https://script.google.com/macros/s/AKfycbzcw3_ujuH04arRj1KLI2j0yXQE8jUb5POHBFPi0NAfZEBAaKe9AcwvxyahI3stGwrh2A/exec',
+    'https://script.google.com/macros/s/AKfycbxEmmZFo2qYKuasmbnptS7K4umOy2PsCMe3F2uF13OqUZBdeY5ziTc00GyvoN2PtaV7kA/exec',
+    'https://script.google.com/macros/s/AKfycbxZhcRkfbT_86cWh5_B4jF9aXCjTIbjCpsbZga_TafiAF4zLUupy0w_MO2ta8h2pvr-/exec'
+]
+
 function convertPlaceHbs(template, options = { from: { start: "%", end: "%" }, to: { start: "{{", end: "}}" } }) {
     try {
         const { from, to } = options;
@@ -67,8 +73,27 @@ function showPage(pageKey) {
     localStorage.setItem("pages", JSON.stringify(pages));
 }
 
-$('#page-translate').click(function () { showPage('translate'); });
-$('#page-update').click(function () { showPage('update'); });
-const currentPage = JSON.parse(localStorage.getItem("pages")).currentPage || 'translate';
-// const currentPage = 'translate';
-$(`#page-${currentPage}`).click()
+$('#page-translate').click(function () {
+    showPage('translate');
+    $('#btnTranslateGroup').removeClass('d-none');
+    $('#btnUpdateGroup').addClass('d-none');
+});
+
+$('#page-update').click(function () {
+    showPage('update');
+    $('#btnTranslateGroup').addClass('d-none');
+    $('#btnUpdateGroup').removeClass('d-none');
+});
+
+function loadOptionsTranslate() {
+    fetch(urlPage + 'views/options.hbs')
+        .then(response => response.text())
+        .then(template => {
+            const compiledTemplate = Handlebars.compile(template);
+            $('#page-options_content').html(compiledTemplate());
+
+            const currentPage = JSON.parse(localStorage.getItem("pages")).currentPage || 'translate';
+            // const currentPage = 'translate';
+            $(`#page-${currentPage}`).click()
+        });
+} loadOptionsTranslate();

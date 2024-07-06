@@ -1,39 +1,46 @@
-const showText = localStorage.getItem("showText");
+// Cài đặt trên trang
+const updatePage = JSON.parse(localStorage.getItem("pages")).update;
+$('#showTextInput_update').prop('checked', updatePage.showTextInput);
+$('#showTextOutput_update').prop("checked", updatePage.showTextOutput);
 
-if (showText === "true") {
-    $('#showText').attr('checked', true);
-    $('#textarea-container').removeClass('d-none');
-} else {
-    $('#showText').attr('checked', false);
-    $('#textarea-container').addClass('d-none');
+$('#showTextInput_update, #showTextOutput_update').on('change', function () { toggleInOutTextU(); });
+
+function toggleInOutTextU() {
+    const showTextInput = $('#showTextInput_update').is(':checked');
+    const showTextOutput = $('#showTextOutput_update').is(':checked');
+
+    if (showTextInput) $('#textarea-container').removeClass('d-none');
+    else $('#textarea-container').addClass('d-none');
+
+    if (showTextOutput) {
+        $('#col-text_update').removeClass('d-none');
+        $('#col-table_update').addClass('col-7');
+    } else {
+        $('#col-text_update').addClass('d-none');
+        $('#col-table_update').removeClass('col-7');
+    }
 }
 
-$('#showText').on('change', function () {
-    if ($(this).is(':checked')) {
-        localStorage.setItem("showText", "true");
-        $('#textarea-container').removeClass('d-none');
-    } else {
-        localStorage.setItem("showText", "false");
-        $('#textarea-container').addClass('d-none');
-    }
-});
-
+// Đọc dữ liệu trong tệp
 $('#update-openFiles').on('change', function (e) {
     const files = e.target.files;
 
     if (files.length > 0) {
         const handleFile = (file, index) => {
-            const reader = new FileReader(); 
+            const reader = new FileReader();
             reader.onload = function (res) {
-                if (index === 0)
+                if (index === 0) {
                     $('#textJsonNew').val(res.target.result);
-                else if (index === 1)
+                } else if (index === 1) {
                     $('#textJsonOld').val(res.target.result);
-                else
+                } else {
                     $('#textJsonTranslated').val(res.target.result);
+                }
+                checkIsObj('#textJsonNew, textJsonOld, #textJsonTranslated');
+                filterTableUpdate();
             };
 
-            reader.readAsText(file); 
+            reader.readAsText(file);
         };
 
         Array.from(files).forEach((file, index) => {
@@ -42,8 +49,51 @@ $('#update-openFiles').on('change', function (e) {
     }
 });
 
+$("#textJsonNew, #textJsonTranslated, #textJsonOld").on("input", function () {
+    if ($(this).val() === "") return;
+    checkIsObj(this);
+    filterTableUpdate();
+});
 
-// -------------------------------------------------------------
+
+/* ---------------- Các hàm và sự kiên liên quan đến lọc và đánh dấu trên bảng -------------- */
+
+function filterTableUpdate() {
+    try {
+        const jsonNew = JSON.parse($('#textJsonNew').val());
+        const jsonOld = JSON.parse($('#textJsonOld').val());
+        const jsonTranslated = JSON.parse($('#textJsonTranslated').val());
+
+        // Tìm các giá trị có sự thay đổi
+        const objNewValues = findNewValues(jsonNew, jsonOld);
+        const objChangedValues = findChangedValues(jsonNew, jsonOld);
+        const objOldKeys = findOldKeys(jsonNew, jsonOld);
+
+        // Xoá các cặp giá trị cũ
+        removeOldValues(objOldKeys, jsonOld, jsonTranslated);
+
+        // Sắp xếp lại obj
+        const sorted = sortedObj(jsonNew, { ...objNewValues, ...objChangedValues });
+
+        console.log(sorted);
+        // console.log(objChangedValues)
+
+        // Tạo bảng lọc giá trị
+        createTableFilter(sorted, '#tb_filterUpdate', '#tb_filterUpdate-Template')
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+// Gắn sự kiện cho các thẻ
+$('#filterContent_update').on('input', function () {
+    highlighTableFilter($(this).val(), '#tb_filterUpdate', '#filterType_update')
+});
+$('#filterType_update').on('change', function () {
+    highlighTableFilter($('#filterContent_update').val(), '#tb_filterUpdate', '#filterType_update')
+});
+
+// --------------------- Các hàm liên quan đến cập nhật json ----------------------------
 
 // Tìm các giá trị mới chỉ có trong jsonNew
 function findNewValues(objNew, objOld) {
@@ -70,10 +120,9 @@ function findChangedValues(objNew, objOld) {
 }
 
 // Tìm các khóa đã cũ và không có trong jsonNew
-function findRemovedKeys(objNew, objOld) {
+function findOldKeys(objNew, objOld) {
     const oldKeys = _.keys(objOld), newKeys = _.keys(objNew);
-    const removedKeys = _.difference(oldKeys, newKeys);
-    return removedKeys;
+    return _.difference(oldKeys, newKeys);
 }
 
 // Hàm xoá giá trị cũ
@@ -102,27 +151,30 @@ $('#btn-update').click(async function () {
         const jsonOld = JSON.parse($('#textJsonOld').val());
         const jsonTranslated = JSON.parse($('#textJsonTranslated').val());
 
-        const newValues = findNewValues(jsonNew, jsonOld);
-        const changedValues = findChangedValues(jsonNew, jsonOld);
-        const removedKeys = findRemovedKeys(jsonNew, jsonOld);
+        // Lấy ra các giá trị có sự thay đổi
+        const objNewValues = findNewValues(jsonNew, jsonOld);
+        const objChangedValues = findChangedValues(jsonNew, jsonOld);
+        const objOldKeys = findOldKeys(jsonNew, jsonOld);
 
-        // Xoá các cặp giá trị cũ
-        removeOldValues(removedKeys, jsonOld, jsonTranslated);
+        // Xoá các cặp giá trị cũ hoặc đã thay đổi
+        removeOldValues(objOldKeys, jsonOld, jsonTranslated);
+        removeOldValues(objChangedValues, jsonOld, jsonTranslated);
 
-        // Dịch và nhập lại thành một obj
-        const objTranslated = await translateObj(newValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
-        const changedTranslated = await translateObj(changedValues, Number($('#textLimit_update').val()), API[$('#api_update').val()]);
+        // Gọp lại thành một obj với các nội dung cần dịch
+        const objToTranslate = { ...objNewValues, ...objChangedValues };
 
-        // Thay thế và thêm dữ liệu
-        updateObject(jsonOld, changedValues, newValues);
-        updateObject(jsonTranslated, changedTranslated, objTranslated);
+        // Dịch obj
+        const objTranslated = await translateObj(objToTranslate, 'auto', 'vi', API[$('#api').val()], Number($('#textLimit').val()));
+
+        // Kết hợp dữ liệu mới vào jsonTranslated
+        const combiedObjTranslated = { ...jsonTranslated, ...objTranslated };
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra giao diện
-        const sortedObjTranslated = sortedObj(jsonNew, jsonTranslated);
-        $('#updateResult').val(JSON.stringify(sortedObjTranslated, null, Number($('#spaceRow_update').val())));
+        const sorted = sortedObj(jsonNew, combiedObjTranslated); 
+        $('#updateResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
 
         // Tạo bảng và gán dữ liệu cho bảng
-        const dataTable = createDataTable(jsonNew, sortedObjTranslated);
+        const dataTable = createDataTable(jsonNew, sorted);
         $('#tb_updateBody').html(createTable('#tb_update-Template', dataTable));
 
         // Tự động điều chỉnh chiều cao của tất cả các textarea

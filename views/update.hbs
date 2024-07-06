@@ -3,18 +3,18 @@
 
     <div>
         <div class="form-check form-switch">
-            <input class="form-check-input pointer" type="checkbox" role="switch" id="showText">
-            <label class="form-check-label pointer no-copy" for="showText">Xem ô nhập</label>
+            <input class="form-check-input pointer" type="checkbox" role="switch" id="showTextInput_update">
+            <label class="form-check-label pointer no-copy" for="showTextInput_update">Xem ô nhập</label>
         </div>
 
         <div class="form-check form-switch">
-            <input class="form-check-input pointer" type="checkbox" role="switch" id="showText">
-            <label class="form-check-label pointer no-copy" for="showText">Xem ô kết quả</label>
+            <input class="form-check-input pointer" type="checkbox" role="switch" id="showTextOutput_update">
+            <label class="form-check-label pointer no-copy" for="showTextOutput_update">Xem ô kết quả</label>
         </div>
     </div>
 </div>
 
-<div id="textarea-container" class="row mb-3">
+<div id="textarea-container" class="row mb-3 d-none">
     <div class="col">
         <label for="textJsonNew">Json bản mới:</label>
         <textarea id="textJsonNew" class="form-control form-control-sm" style="height: 150px;"></textarea>
@@ -30,13 +30,13 @@
 </div>
 
 <div class="row">
-    <div class="col-5">
+    <div id="col-text_update" class="col-5">
         <label for="updateResult">Kết quả:</label>
         <textarea id="updateResult" class="form-control form-control-sm"
             style="height: 460px; resize: none;"></textarea>
     </div>
 
-    <div class="col-7">
+    <div id="col-table_update" class="col col-7">
         <span>Bảng so sánh dữ liệu:</span>
         <div class="tableScroll border rounded-1" style="height: 460px;">
             <table id="tb_update" class="table table-sm table-hover border-start border-end"
@@ -57,7 +57,7 @@
                             <tr>
                                 <td class="key-column">%key%</td>
                                 <td class="value-column">%value%</td>
-                                <td style="width: 275px;">
+                                <td style="width: 500px;">
                                     <textarea class="form-control overflow-y-hidden" style="height: 17px;"
                                         oninput="updateTextTranslated(this, '#updateResult', '#spaceRow_update')">%translated%</textarea>
                                 </td>
@@ -77,56 +77,54 @@
     </div>
 </div>
 
-<!-- Các nút và tuỳ chọn dịch -->
-<div class="d-flex align-items-center justify-content-between">
-    <button id="btn-update_copy" class="btn btn-success btn-sm" style="visibility: hidden;">Sao Chép</button>
+<!-- Modal -->
+<div id="modal-update" class="modal modal-lg fade" aria-labelledby="modal-update" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header p-2">
+                <h5 class="modal-title w-100 text-center fw-bold">Tuỳ chọn dịch</h5>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="m-0">Dịch các cặp chứa từ khoá:</p>
 
-    <div class="row">
-        <!-- Server api -->
-        <div class="col-auto">
-            <div class="d-flex align-items-center text-nowrap">
-                <label class="me-2" for="api">Server API:</label>
-                <select class="form-select form-select-sm" id="api_update">
-                    <option value="0" selected>API 1</option>
-                    <option value="1">API 2</option>
-                    <option value="2">API 3</option>
-                </select>
-            </div>
-        </div>
-        <!-- Giới hạn văn bản -->
-        <div class="col-auto">
-            <div class="d-flex align-items-center text-nowrap">
-                <label class="me-2" for="textLimit">Giới hạn văn bản:</label>
-                <select class="form-select form-select-sm" id="textLimit_update">
-                    <option value="5000">5000</option>
-                    <option value="4500" selected>4500</option>
-                    <option value="4000">4000</option>
-                    <option value="3000">3000</option>
-                    <option value="2000">2000</option>
-                    <option value="1000">1000</option>
-                </select>
-            </div>
-        </div>
-        <!-- Khoán cách đầu ra mỗi dòng -->
-        <div class="col-auto">
-            <div class="d-flex align-items-center text-nowrap">
-                <label class="me-2" for="spaceRow">Khoản cách:</label>
-                <select class="form-select form-select-sm" id="spaceRow_update">
-                    <option value="2" selected>2</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
-        </div>
-        <!-- Nút dịch -->
-        <div class="col-auto">
-            <button id="btn-update" class="btn btn-sm btn-primary text-nowrap">Bắt đầu dịch</button>
-        </div>
-    </div>
-</div>
+                    <div class="form-check form-switch form-check-list">
+                        <input class="form-check-input pointer" type="checkbox" role="switch" id="filterType_update">
+                        <label class="form-check-label pointer no-copy" for="filterType_update"></label>
+                    </div>
+                </div>
 
-<!-- Thanh tiến trình -->
-<div id="progressUpdate" class="progress mt-2 d-none">
-    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0"
-        aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                <textarea id="filterContent_update" class="form-control form-control-sm"
+                    placeholder="Nhập các từ khóa cách nhau bằng dấu phẩy. Ví dụ: abc, bdf, ..."></textarea>
+
+                <div class="tableScroll border rounded-1 mt-3" style="height: 350px;">
+                    <table id="tb_filterUpdate" class="table table-sm table-hover border-start border-end"
+                        style="table-layout: auto;">
+                        <thead>
+                            <tr class="table-active">
+                                <th scope="col">Keys</th>
+                                <th scope="col">Values</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb_filterUpdateBody"></tbody>
+                        <script type="text/x-handlebars-template" id="tb_filterUpdate-Template">
+                            %#if dataTable%
+                            %#each dataTable%
+                                <tr>
+                                    <td class="key-column" style="max-width: 300px;">%key%</td>
+                                    <td class="value-column">%value%</td>
+                                </tr>
+                            %/each%
+                            %/if%
+                        </script>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer p-1">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"
+                    style="width: 100px;">Đóng</button>
+            </div>
+        </div>
     </div>
 </div>
