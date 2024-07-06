@@ -26,25 +26,41 @@ $('#update-openFiles').on('change', function (e) {
     const files = e.target.files;
 
     if (files.length > 0) {
-        const handleFile = (file, index) => {
-            const reader = new FileReader();
-            reader.onload = function (res) {
-                if (index === 0) {
-                    $('#textJsonNew').val(res.target.result);
-                } else if (index === 1) {
-                    $('#textJsonOld').val(res.target.result);
-                } else {
-                    $('#textJsonTranslated').val(res.target.result);
-                }
-                checkIsObj('#textJsonNew, textJsonOld, #textJsonTranslated');
-                filterTableUpdate();
-            };
+        const fileReaders = [];
 
-            reader.readAsText(file);
+        const handleFile = (file, index) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (res) {
+                    resolve({ index: index, content: res.target.result });
+                };
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
         };
 
+        // Tạo một mảng promise để chờ tất cả các file được đọc xong
         Array.from(files).forEach((file, index) => {
-            handleFile(file, index);
+            fileReaders.push(handleFile(file, index));
+        });
+
+        // Khi tất cả các promise được hoàn thành
+        Promise.all(fileReaders).then(results => {
+            results.forEach(file => {
+                console.log(file);
+
+                if (file.index === 0) {
+                    $('#textJsonOld').val(file.content);
+                } else if (file.index === 1) {
+                    $('#textJsonNew').val(file.content);
+                } else if (file.index === 2) {
+                    $('#textJsonTranslated').val(file.content);
+                }
+            });
+            checkIsObj('#textJsonNew, #textJsonOld, #textJsonTranslated');
+            filterTableUpdate();
+        }).catch(error => {
+            console.error("Error reading files:", error);
         });
     }
 });
@@ -74,9 +90,6 @@ function filterTableUpdate() {
 
         // Sắp xếp lại obj
         const sorted = sortedObj(jsonNew, { ...objNewValues, ...objChangedValues });
-
-        console.log(sorted);
-        // console.log(objChangedValues)
 
         // Tạo bảng lọc giá trị
         createTableFilter(sorted, '#tb_filterUpdate', '#tb_filterUpdate-Template')
@@ -170,7 +183,7 @@ $('#btn-update').click(async function () {
         const combiedObjTranslated = { ...jsonTranslated, ...objTranslated };
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra giao diện
-        const sorted = sortedObj(jsonNew, combiedObjTranslated); 
+        const sorted = sortedObj(jsonNew, combiedObjTranslated);
         $('#updateResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
 
         // Tạo bảng và gán dữ liệu cho bảng
