@@ -95,9 +95,7 @@ function filterTableUpdate() {
 
         // Tạo bảng lọc giá trị
         createTableFilter(sorted, '#tb_filterUpdate', '#tb_filterUpdate-Template');
-    } catch (e) {
-        console.log(e);
-    }
+    } catch (e) { }
 }
 
 function changesTableUpdate(objNewValues, objChangedValues, objOldKeys) {
@@ -210,7 +208,7 @@ $('#btn-update').click(async function () {
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra giao diện
         const sorted = sortedObj(jsonNew, combiedObjTranslated);
-        $('#updateResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
+        $('#updateResult').val(formatJsonTextLineBreak($('#textJsonNew').val(), JSON.stringify(sorted, null, Number($('#spaceRow').val()))));
 
         // Tạo bảng và gán dữ liệu cho bảng
         const dataTable = createDataTable(jsonNew, sorted);

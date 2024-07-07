@@ -62,9 +62,11 @@ $('#translate-openFiles').on('change', function (e) {
 
 // kiểm tra lỗi trên text
 $('#transText').on('input', function () {
-    if ($(this).val() === "") return;
-    checkIsObj(this);
-    createTableFilter(JSON.parse($(this).val()), '#tb_filter', '#tb_filter-Template');
+    try {
+        if ($(this).val() === "") return;
+        checkIsObj(this);
+        createTableFilter(JSON.parse($(this).val()), '#tb_filter', '#tb_filter-Template');
+    } catch (e) { }
 });
 
 /* ---------------- Các hàm và sự kiên liên quan đến lọc và đánh dấu trên bảng -------------- */
@@ -187,6 +189,23 @@ function splitTexts(textArray, maxLength) {
     return groups;
 }
 
+// Định dang ngắt dòng cho json đã dịch
+function formatJsonTextLineBreak(original, translated) {
+    const originalLines = _.split(original, '\n');
+    const translatedLines = _.split(translated, '\n');
+
+    let translatedLinesIndex = 0;
+    const result = _.map(originalLines, (line) => {
+        if (_.trim(line).length === 0) {
+            return '';
+        } else {
+            return translatedLines[translatedLinesIndex++] || '';
+        }
+    });
+
+    return _.join(result, '\n');
+}
+
 // Hàm dịch văn bản
 async function translation(text, source_lang, target_lang, api_url) {
     const params = { text: text, source: source_lang, target: target_lang }
@@ -223,22 +242,6 @@ async function translateObj(object, source_lang, target_lang, api, textLimit) {
 
 /* ------------------ Các hàm liên quan đến bảng ------------------ */
 
-function resizeRowTable(tableElement, colNumber, ...rowWidths) {
-    if (rowWidths.length === 1) rowWidths = new Array(colNumber).fill(rowWidths[0]);
-    if (rowWidths.length > colNumber) rowWidths = rowWidths.slice(0, colNumber);
-    if (colNumber !== rowWidths.length) {
-        console.error("Số lượng cột không khớp với số lượng chiều dài.");
-        return;
-    }
-
-    // Lấy tất cả các hàng trong bảng
-    $(tableElement).find('tr').each(function () {
-        $(this).find('tbody th').each(function (index) {
-            if (index < colNumber) $(this).css('width', rowWidths[index]);
-        });
-    });
-}
-
 // Tạo bảng
 function createTable(element_content, dataTable = []) {
     const template = Handlebars.compile(convertPlaceHbs($(element_content).html()));
@@ -263,7 +266,9 @@ function updateTextTranslated(element, elementForUpdate, elementForSpace) {
     try {
         const transResult = JSON.parse($(elementForUpdate).val());
         _.set(transResult, key, newValue);
-        $(elementForUpdate).val(JSON.stringify(transResult, null, Number($(elementForSpace).val())));
+        $(elementForUpdate).val(
+            formatJsonTextLineBreak($(elementForUpdate).val(), JSON.stringify(transResult, null, Number($(elementForSpace).val())))
+        );
     } catch (err) {
         console.log(err);
         showErrorToast("Có lỗi xảy ra khi cập nhật nội dung");
@@ -283,6 +288,23 @@ function autoResizeTextarea(element) {
         $(element).css("height", 0);
         $(element).css("height", `${element.scrollHeight}px`);
     })
+}
+
+// Hàm thay đổi chiều dài của cột
+function resizeRowTable(tableElement, colNumber, ...rowWidths) {
+    if (rowWidths.length === 1) rowWidths = new Array(colNumber).fill(rowWidths[0]);
+    if (rowWidths.length > colNumber) rowWidths = rowWidths.slice(0, colNumber);
+    if (colNumber !== rowWidths.length) {
+        console.error("Số lượng cột không khớp với số lượng chiều dài.");
+        return;
+    }
+
+    // Lấy tất cả các hàng trong bảng
+    $(tableElement).find('tr').each(function () {
+        $(this).find('tbody th').each(function (index) {
+            if (index < colNumber) $(this).css('width', rowWidths[index]);
+        });
+    });
 }
 
 /* ---------------- Các hàm liên quan đến thanh tiến trình -------------- */
@@ -343,7 +365,7 @@ $('#btn-translate').click(async function () {
 
         // Sắp xếp lại dữ liệu theo obj gốc và in ra kết quả
         const sorted = sortedObj(jsonText, objcombined);
-        $('#transResult').val(JSON.stringify(sorted, null, Number($('#spaceRow').val())));
+        $('#transResult').val(formatJsonTextLineBreak($('#transText').val(), JSON.stringify(sorted, null, Number($('#spaceRow').val()))));
 
         // Tạo bảng và gán dữ liệu cho bảng
         const dataTable = createDataTable(jsonText, sorted);
