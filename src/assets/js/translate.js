@@ -8,9 +8,10 @@ $('#showTextInput, #showTextOutput').on('change', function () { toggleInOutText(
 function toggleInOutText() {
     function updateVisibility(selector, isVisible, isOtherVisible) {
         const $element = $(selector).closest('div');
+        const tableHeight = $('#tb_translate').closest('.tableScroll').css('height');
         if (isVisible) {
             $element.removeClass('d-none');
-            $(selector).css('height', isOtherVisible ? '218px' : '460px');
+            $(selector).css('height', isOtherVisible ? '238px' : tableHeight);
         } else {
             $element.addClass('d-none');
         }

@@ -3,19 +3,28 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="./images/favicon.ico">
-    <link rel="stylesheet" href="./libs/bootstrap-5.3.3/bootstrap.min.css">
-    <link rel="stylesheet" href="./libs/fontawesome-6.4.2/css/all.css">
-    <link rel="stylesheet" href="./libs/toast/toast.css">
-    <link rel="stylesheet" href="./css/main.css">
+    <link rel="shortcut icon" href="./assets/images/favicon.ico">
+    <link rel="stylesheet" href="./assets/libs/bootstrap-5.3.3/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/libs/fontawesome-6.4.2/css/all.css">
+    <link rel="stylesheet" href="./assets/libs/toast/toast.css">
+    <link rel="stylesheet" href="./assets/css/main.css">
     <title>Document</title>
 </head>
 
 <body>
     <div id="toast"></div>
 
-    <main>
-        <div class="container">
+    <!-- Menu ngữ cảnh -->
+    <div id="context-menu" class="dropdown-menu">
+        <a class="dropdown-item" href="#" id="refresh">Làm mới trang</a>
+        <a class="dropdown-item" href="#" id="cut">Cắt</a>
+        <a class="dropdown-item" href="#" id="copy">Sao chép</a>
+        <a class="dropdown-item" href="#" id="paste">Dán</a>
+        <a class="dropdown-item" href="#" id="select-all">Chọn tất cả</a>
+    </div>
+
+    <main style="height: 98vh;">
+        <div class="container-xxl container-fluid">
             <div>
                 <ul class="nav nav-tabs justify-content-center mt-2 w-100">
                     <li id="page-translate" class="nav-item">
@@ -47,7 +56,8 @@
                         </symbol>
                     </svg>
                     <label class="switch pointer">
-                        <input id="toggleTheme" class="switch__input" aria-checked="true" type="checkbox" role="switch" name="dark" />
+                        <input id="toggleTheme" class="switch__input" aria-checked="true" type="checkbox" role="switch"
+                            name="dark" />
                         <svg class="switch__icon" width="30px" height="30px" aria-hidden="true">
                             <use href="#light" />
                         </svg>
@@ -74,14 +84,14 @@
         </div>
     </main>
 
-    <script src="./libs/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
-    <script src="./libs/handlebars/handlebars4.7.8.min.js"></script>
-    <script src="./libs/jquery-3.7.1/all.js"></script>
-    <script src="./libs/lodash-1.8.3/lodash.min.js"></script>
-    <script src="./libs/toast/toast.js"></script>
-    <script src="./js/translate.js"></script>
-    <script src="./js/main.js"></script>
-    <script src="./js/theme.js"></script>
+    <script src="./assets/libs/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
+    <script src="./assets/libs/handlebars/handlebars4.7.8.min.js"></script>
+    <script src="./assets/libs/jquery-3.7.1/all.js"></script>
+    <script src="./assets/libs/lodash-1.8.3/lodash.min.js"></script>
+    <script src="./assets/libs/toast/toast.js"></script>
+    <script src="./assets/js/translate.js"></script>
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/theme.js"></script>
 </body>
 
 </html>
