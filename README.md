@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Một công cụ mã nguồn mở đơn giản giúp dịch chuỗi Json cho các tệp Modding Minecraft. Được xây dựng hoàn toàn ở phía Client nên rất nhẹ và được đóng gói thành ứng dụng Desktop bằng <a href="https://tauri.app" target="_blank">Tauri</a>.</h4>
+<h4 align="center">Một công cụ mã nguồn mở đơn giản giúp dịch chuỗi Json cho các tệp Modding Minecraft. Được xây dựng và đóng gói thành ứng dụng Desktop bằng <a href="https://tauri.app" target="_blank">Tauri</a>.</h4>
 
 <p align="center">
   <a href="#tính-năng">Tính năng</a> •
@@ -33,12 +33,12 @@ Bạn có thể tải xuống phiên bản mới nhất [tại đây](https://gi
 ## Tín dụng
 Ứng dụng này sử dụng các gói và thư viện sau:
 
-- ![Tauri Badge](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=fff&style=for-the-badge)
-- ![Bootstrap Badge](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff&style=for-the-badge)
-- ![Font Awesome Badge](https://img.shields.io/badge/Font%20Awesome-538DD7?logo=fontawesome&logoColor=fff&style=for-the-badge)
-- ![Handlebars.js Badge](https://img.shields.io/badge/Handlebars.js-000?logo=handlebarsdotjs&logoColor=fff&style=for-the-badge)
-- ![jQuery Badge](https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=fff&style=for-the-badge)
-- ![Lodash Badge](https://img.shields.io/badge/Lodash-3492FF?logo=lodash&logoColor=fff&style=for-the-badge)
+- [![Tauri Badge](https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=fff&style=for-the-badge)](https://tauri.app)
+- [![Bootstrap Badge](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff&style=for-the-badge)](https://getbootstrap.com)
+- [![Font Awesome Badge](https://img.shields.io/badge/Font%20Awesome-538DD7?logo=fontawesome&logoColor=fff&style=for-the-badge)](https://fontawesome.com/)
+- [![Handlebars.js Badge](https://img.shields.io/badge/Handlebars.js-000?logo=handlebarsdotjs&logoColor=fff&style=for-the-badge)](https://handlebarsjs.com/)
+- [![jQuery Badge](https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=fff&style=for-the-badge)](https://jquery.com/)
+- [![Lodash Badge](https://img.shields.io/badge/Lodash-3492FF?logo=lodash&logoColor=fff&style=for-the-badge)](https://lodash.com/)
 
 ## Cách sử dụng
 Đối với phần dịch:

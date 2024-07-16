@@ -219,7 +219,7 @@ $('#btn-update').click(async function () {
             autoResizeTextarea(this);
         });
 
-        $('#btn-update_copy').css('visibility', 'unset'); // Hiển thị nút sao chép
+        $('#btn-update_copy').closest('.btn-group').css('visibility', 'unset'); // Hiển thị nút sao chép
         stopProgressBar('#progressUpdate', 700); // Kết thúc thanh tiến trình, đóng sau 0.7s
         $(this).removeClass("disabled");
     } catch (error) {
@@ -241,4 +241,22 @@ $('#btn-update_copy').click(function () {
         console.error('Không thể sao chép nội dung: ', err);
         showErrorToast('Có lỗi khi sao chép nội dung!');
     });
+});
+
+// Nút tải về
+$('#btn-download-update').click(function (e) {
+    const content = $('#updateResult').val();
+    const blob = new Blob([content], { type: 'application/json' });
+
+    var a = $('<a />', {
+        href: URL.createObjectURL(blob),
+        download: 'vi_vn.json'
+    }).appendTo('body');
+
+    a[0].click();
+
+    setTimeout(function () {
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    }, 0);
 });

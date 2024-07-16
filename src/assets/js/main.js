@@ -99,71 +99,10 @@ function loadOptionsTranslate() {
 } loadOptionsTranslate();
 
 
-
-
 var isTauri = window.__TAURI__ !== undefined;
 
 if (isTauri) {
-    console.log('đang chạy trên tauri');
-    // Vô hiệu context menu
     $(document).on('contextmenu', function (e) {
-        // e.preventDefault();
+        e.preventDefault();
     });
-} else {
-    console.log('đang chạy trên web');
-}
-
-
-
-
-
-// $(document).ready(function() {
-//     // Hiển thị menu ngữ cảnh
-//     $(document).on('contextmenu', function(e) {
-//         e.preventDefault(); // Ngăn chặn menu ngữ cảnh mặc định
-
-//         var menu = $('#context-menu');
-//         menu.css({
-//             display: 'block',
-//             left: e.pageX + 'px',
-//             top: e.pageY + 'px'
-//         });
-//     });
-
-//     // Ẩn menu ngữ cảnh khi nhấp ra ngoài
-//     $(document).on('click', function(e) {
-//         if (!$(e.target).closest('#context-menu').length) {
-//             $('#context-menu').hide();
-//         }
-//     });
-
-//     // Xử lý các hành động menu ngữ cảnh
-//     $('#refresh').on('click', function() {
-//         location.reload(); // Làm mới trang
-//         $('#context-menu').hide();
-//     });
-
-//     $('#cut').on('click', function() {
-//         document.execCommand('cut'); // Cắt
-//         $('#context-menu').hide();
-//     });
-
-//     $('#copy').on('click', function() {
-//         document.execCommand('copy'); // Sao chép
-//         $('#context-menu').hide();
-//     });
-
-//     $('#paste').on('click', function() {
-//         var textarea = document.getElementById('textarea');
-//         textarea.focus(); // Đảm bảo phần tử có tiêu điểm
-//         document.execCommand('paste'); // Dán
-//         $('#context-menu').hide();
-//     });
-
-//     $('#select-all').on('click', function() {
-//         var textarea = document.getElementById('textarea');
-//         textarea.focus(); // Đảm bảo phần tử có tiêu điểm
-//         textarea.select(); // Chọn tất cả văn bản trong textarea
-//         $('#context-menu').hide();
-//     });
-// });
+} 
