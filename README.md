@@ -19,7 +19,7 @@
 </p>
 
 <h1 align="center">
-  <img src="https://github.com/ALR2310/TranslateCraft/assets/87233160/5ed822ea-6e5a-428d-a707-624a6c0f690f" width="800">
+  <img src="https://github.com/user-attachments/assets/6c204131-93f0-4ebc-868c-225c3c167455" width="800">
 </h1>
 
 ## Tính năng
